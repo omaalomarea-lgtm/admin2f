@@ -1,0 +1,2356 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1f3a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>لوحة الوكيلة — نظام الحضور الذكي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Cairo', 'system-ui', 'sans-serif'] },
+        colors: {
+          navy: { 50: '#eef2f8', 100: '#d9e1ee', 200: '#b3c2dc', 300: '#7f97bf', 500: '#34507f', 600: '#24406e', 700: '#1c3a66', 800: '#13294b', 900: '#0b1f3a', 950: '#06122a' },
+          gold: { 50: '#fdf8ea', 100: '#f8ecc8', 300: '#e6c977', 400: '#d9b85c', 500: '#c9a227', 600: '#a8841a', 700: '#8a6d1d' }
+        },
+        boxShadow: {
+          soft: '0 1px 2px rgba(11,31,58,.04), 0 8px 24px -8px rgba(11,31,58,.12)',
+          lift: '0 2px 4px rgba(11,31,58,.06), 0 18px 40px -12px rgba(11,31,58,.25)'
+        }
+      }
+    }
+  };
+</script>
+<style>
+  :root { --navy: #0b1f3a; --emerald: #047857; }
+  html { -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Cairo', system-ui, sans-serif; background: #eef3f1; color: #0f172a; }
+  .hero-bg {
+    background:
+      radial-gradient(900px 400px at 85% -10%, rgba(16,185,129,.28), transparent 60%),
+      radial-gradient(700px 380px at 0% 0%, rgba(201,162,39,.16), transparent 55%),
+      linear-gradient(160deg, #06122a 0%, #0b1f3a 45%, #0d2c45 100%);
+  }
+  .hero-pattern {
+    background-image: radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+  .gold-line { background: linear-gradient(90deg, transparent, #d9b85c, transparent); height: 1px; }
+  .fade-up { animation: fadeUp .45s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .pop { animation: pop .3s cubic-bezier(.2,.9,.3,1.3) both; }
+  @keyframes pop { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
+  .shimmer { background: linear-gradient(90deg, #e9eef3 0%, #f6f8fa 50%, #e9eef3 100%); background-size: 200% 100%; animation: shimmer 1.2s infinite linear; }
+  @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+  .press { transition: transform .12s ease, box-shadow .2s ease, background-color .2s ease, opacity .2s; }
+  .press:active:not(:disabled) { transform: scale(.97); }
+  .pulse-dot { animation: pulseDot 1.6s infinite; }
+  @keyframes pulseDot { 0% { box-shadow: 0 0 0 0 currentColor; } 70% { box-shadow: 0 0 0 7px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+  .spinner { width: 1.15rem; height: 1.15rem; border: 2.5px solid currentColor; border-right-color: transparent; border-radius: 9999px; animation: spin .7s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { scrollbar-width: none; }
+  .thin-scroll::-webkit-scrollbar { width: 6px; height: 6px; } .thin-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9px; }
+  input[type="time"]::-webkit-calendar-picker-indicator, input[type="date"]::-webkit-calendar-picker-indicator { opacity: .6; cursor: pointer; }
+  .ring-progress { transition: stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1); }
+  .toast-enter { animation: toastIn .35s cubic-bezier(.2,.9,.3,1.2) both; }
+  .toast-leave { animation: toastOut .25s ease both; }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(-14px) scale(.97); } to { opacity: 1; transform: none; } }
+  @keyframes toastOut { to { opacity: 0; transform: translateY(-10px) scale(.97); } }
+  .safe-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+  #print-root { display: none; }
+  @media print {
+    @page { size: A4 landscape; margin: 10mm; }
+    body { background: #fff !important; }
+    body > *:not(#print-root) { display: none !important; }
+    #print-root { display: block !important; }
+    #print-root table.data { width: 100%; border-collapse: collapse; font-size: 10px; }
+    #print-root table.data th, #print-root table.data td { border: 1px solid #cbd5e1; padding: 3px 5px; text-align: right; }
+    #print-root table.data th { background: #0b1f3a !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    #print-root table.data tr:nth-child(even) td { background: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    #print-root table.data thead { display: table-header-group; }
+    #print-root tr { break-inside: avoid; }
+  }
+</style>
+</head>
+<body class="min-h-screen antialiased">
+
+<!-- ======================= الترويسة ======================= -->
+<header class="hero-bg relative text-white">
+  <div class="hero-pattern absolute inset-0 pointer-events-none"></div>
+  <div class="relative max-w-6xl mx-auto px-4 pt-5 pb-20 sm:pb-24">
+    <div class="flex items-start justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div id="brand-logo" class="shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-700 grid place-items-center shadow-lg shadow-emerald-900/40 ring-1 ring-white/20 overflow-hidden"></div>
+        <div class="min-w-0">
+          <h1 class="text-lg sm:text-2xl font-extrabold leading-tight tracking-tight">نظام الحضور والانصراف الذكي</h1>
+          <p class="text-[12px] sm:text-sm text-emerald-100/90 font-semibold truncate" id="school-line">لوحة تحكم وكيلة شؤون المعلمات</p>
+          <p class="text-[11px] text-white/55 font-medium truncate" id="deputy-line"></p>
+        </div>
+      </div>
+      <button id="conn-pill" type="button" class="shrink-0 flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/15 ring-1 ring-white/15 px-3 py-1.5 text-xs font-semibold backdrop-blur press" aria-live="polite" title="حالة الاتصال بالخادم">
+        <span id="conn-dot" class="w-2.5 h-2.5 rounded-full bg-amber-400 text-amber-400 pulse-dot"></span>
+        <span id="conn-text">جارٍ الاتصال…</span>
+      </button>
+    </div>
+
+    <div class="mt-6 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <div id="clock-time" class="text-4xl sm:text-5xl font-black tabular-nums tracking-tight">--:--</div>
+        <div class="mt-1 text-sm text-white/75 font-medium"><span id="clock-day">—</span> <span class="text-gold-400 mx-1">•</span> <span id="clock-hijri">—</span></div>
+      </div>
+      <nav id="sections" class="flex p-1 rounded-2xl bg-white/10 ring-1 ring-white/15 backdrop-blur w-full lg:w-auto overflow-x-auto no-scrollbar" role="tablist">
+        <button data-section-btn="daily" role="tab" class="tab-btn shrink-0 whitespace-nowrap flex-1 lg:flex-none px-4 py-2.5 rounded-xl text-sm font-bold press">📊 اللوحة اليومية</button>
+        <button data-section-btn="requests" role="tab" class="tab-btn shrink-0 whitespace-nowrap flex-1 lg:flex-none px-4 py-2.5 rounded-xl text-sm font-bold press flex items-center justify-center gap-2">📨 الطلبات <span id="nav-pending" class="hidden min-w-[20px] h-5 px-1.5 rounded-full bg-amber-500 text-white text-[11px] font-black place-items-center">0</span></button>
+        <button data-section-btn="staff" role="tab" class="tab-btn shrink-0 whitespace-nowrap flex-1 lg:flex-none px-4 py-2.5 rounded-xl text-sm font-bold press">👩‍🏫 الكادر</button>
+        <button data-section-btn="reports" role="tab" class="tab-btn shrink-0 whitespace-nowrap flex-1 lg:flex-none px-4 py-2.5 rounded-xl text-sm font-bold press">📑 التقارير</button>
+      </nav>
+    </div>
+  </div>
+  <div class="gold-line absolute bottom-0 inset-x-0 opacity-60"></div>
+</header>
+
+<main id="app-main" class="relative max-w-6xl mx-auto px-4 -mt-14 sm:-mt-16 pb-16 safe-bottom">
+
+  <!-- ======================= إعداد رابط الخادم ======================= -->
+  <section id="setup-card" class="hidden max-w-xl mx-auto bg-white rounded-3xl shadow-lift p-6 mb-6 fade-up">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-10 h-10 rounded-xl bg-gold-50 text-gold-600 grid place-items-center"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.5.5l3-3a5 5 0 00-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 00-7.5-.5l-3 3a5 5 0 007 7l1.7-1.7"/></svg></div>
+      <div><h2 class="font-extrabold text-navy-900">ربط النظام بالخادم السحابي</h2><p class="text-xs text-slate-500">ألصقي رابط تطبيق الويب (Web App URL) المنتهي بـ <span dir="ltr" class="font-mono">/exec</span></p></div>
+    </div>
+    <input id="setup-url" dir="ltr" type="url" placeholder="https://script.google.com/macros/s/…/exec" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500">
+    <button id="setup-save" class="mt-3 w-full rounded-xl bg-navy-900 hover:bg-navy-800 text-white font-bold py-3 press">حفظ واختبار الاتصال</button>
+  </section>
+
+  <div id="server-warning-top" class="hidden mb-4 rounded-2xl bg-rose-600 text-white text-sm px-4 py-3 font-bold leading-relaxed shadow-lift"></div>
+
+  <!-- ======================= لوحة الوكيلة ======================= -->
+  <section id="view-admin" class="hidden">
+
+    <!-- دخول الوكيلة -->
+    <div id="admin-login" class="hidden max-w-sm mx-auto bg-white rounded-3xl shadow-lift p-6 fade-up">
+      <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-navy-800 to-navy-950 text-gold-400 grid place-items-center ring-4 ring-gold-50">
+        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 118 0v4"/></svg>
+      </div>
+      <h2 class="mt-4 text-center text-xl font-extrabold text-navy-900">لوحة تحكم الوكيلة</h2>
+      <p class="text-center text-sm text-slate-500">أ. فوزية عبدالله الغامدي</p>
+      <p id="login-storage-hint" class="hidden mt-2 text-center text-[11px] text-amber-600 font-semibold">التخزين محظور في هذا المتصفح — ستحتاجين لإعادة الدخول عند تحديث الصفحة</p>
+      <input id="admin-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="الرمز السري" dir="ltr" class="mt-5 w-full text-center tracking-[0.5em] text-xl font-bold rounded-2xl border border-slate-200 bg-slate-50 py-3 focus:outline-none focus:ring-2 focus:ring-navy-500/40 focus:border-navy-500 focus:bg-white transition">
+      <button id="admin-login-btn" class="mt-4 w-full rounded-2xl bg-navy-900 hover:bg-navy-800 text-white font-extrabold py-3.5 press flex items-center justify-center gap-2 disabled:opacity-60">دخول</button>
+    </div>
+
+    <!-- اللوحة -->
+    <div id="admin-panel" class="hidden space-y-5">
+
+      <!-- شريط الأدوات -->
+      <div class="bg-white rounded-3xl shadow-lift p-3 sm:p-4 fade-up">
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="flex items-center gap-1 rounded-2xl bg-slate-50 ring-1 ring-slate-200 p-1">
+            <button id="day-prev" class="w-9 h-9 rounded-xl hover:bg-white grid place-items-center text-slate-600 press" aria-label="اليوم السابق"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+            <input id="admin-date" type="date" class="bg-transparent text-sm font-bold text-navy-900 px-1 py-1.5 focus:outline-none">
+            <button id="day-next" class="w-9 h-9 rounded-xl hover:bg-white grid place-items-center text-slate-600 press" aria-label="اليوم التالي"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+          </div>
+          <button id="btn-today" class="rounded-xl px-3 py-2 text-sm font-bold text-navy-800 hover:bg-navy-50 press">اليوم</button>
+          <button id="btn-refresh" class="rounded-xl px-3 py-2 text-sm font-bold text-emerald-700 hover:bg-emerald-50 press flex items-center gap-1.5"><svg id="refresh-ico" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21 12a9 9 0 11-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>تحديث</button>
+          <label class="flex items-center gap-2 text-xs font-semibold text-slate-500 cursor-pointer px-2"><input id="auto-refresh" type="checkbox" checked class="accent-emerald-600 w-4 h-4">تحديث تلقائي</label>
+          <span id="last-updated" class="text-[11px] text-slate-400"></span>
+          <div class="flex-1"></div>
+          <div class="flex flex-wrap items-center gap-1.5">
+            <button id="btn-retro" class="tool-btn !bg-emerald-50 !text-emerald-800">➕ <span>تسجيل حركة سابقة</span></button>
+            <button id="btn-print" class="tool-btn">🖨️ <span>طباعة</span></button>
+            <button id="btn-export" class="tool-btn">⬇️ <span>تصدير</span></button>
+            <button data-open="modal-maint" class="tool-btn">🛠️ <span>الصيانة</span></button>
+            <button data-open="modal-settings" class="tool-btn">⚙️ <span>الإعدادات</span></button>
+            <button id="btn-logout" class="tool-btn !text-rose-600 hover:!bg-rose-50">خروج</button>
+          </div>
+        </div>
+        <button id="pending-banner" class="hidden mt-3 w-full text-right rounded-2xl bg-amber-50 hover:bg-amber-100 ring-1 ring-amber-200 text-amber-900 text-sm px-4 py-2.5 font-bold press">📨 <span id="pending-text"></span> — اضغطي للمراجعة</button>
+        <div id="server-warning" class="hidden mt-3 rounded-2xl bg-rose-600 text-white text-sm px-4 py-3 font-bold leading-relaxed"></div>
+        <div id="geo-warning" class="hidden mt-3 rounded-2xl bg-rose-50 ring-1 ring-rose-200 text-rose-800 text-sm px-4 py-2.5 font-semibold">📍 لم تُضبط إحداثيات المدرسة بعد — التحقق الجغرافي متوقف والتسجيل متاح من أي مكان. اضبطيها من «الإعدادات».</div>
+        <div id="pin-warning" class="hidden mt-3 rounded-2xl bg-amber-50 ring-1 ring-amber-200 text-amber-900 text-sm px-4 py-2.5 font-semibold">⚠️ الرمز السري ما زال الافتراضي (1234). غيّريه من «الإعدادات» لحماية اللوحة.</div>
+        <div id="day-banner" class="hidden mt-3 rounded-2xl bg-navy-50 ring-1 ring-navy-100 text-navy-800 text-sm px-4 py-2.5 font-semibold"></div>
+      </div>
+
+      <!-- بطاقات المؤشرات -->
+      <div id="kpis" class="grid grid-cols-2 lg:grid-cols-6 gap-3"></div>
+
+      <!-- تصنيف الكادر -->
+      <div id="contract-cards" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+
+      <!-- الجدول -->
+      <div class="bg-white rounded-3xl shadow-soft overflow-hidden fade-up">
+        <div class="p-4 sm:p-5 border-b border-slate-100 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div id="filter-chips" class="flex gap-1.5 overflow-x-auto no-scrollbar"></div>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <div class="relative flex-1 sm:w-64">
+                <svg class="w-4 h-4 absolute top-1/2 -translate-y-1/2 right-3 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                <input id="table-search" type="search" placeholder="بحث بالاسم أو الهوية…" class="w-full rounded-xl border border-slate-200 bg-slate-50 pr-9 pl-3 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:bg-white">
+              </div>
+              <select id="status-filter" class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+                <option value="all">كل الحالات</option>
+                <option value="onTime">في الموعد</option>
+                <option value="late">متأخرات</option>
+                <option value="absent">غائبات</option>
+                <option value="excused">بعذر</option>
+                <option value="stillIn">على رأس العمل</option>
+                <option value="out">منصرفات</option>
+                <option value="early">انصراف مبكر</option>
+                <option value="permit">انصراف باستئذان</option>
+              </select>
+            </div>
+          </div>
+          <div id="table-summary" class="text-xs text-slate-500 font-semibold"></div>
+        </div>
+        <div class="hidden md:block overflow-x-auto thin-scroll">
+          <table class="w-full text-sm">
+            <thead class="bg-navy-900 text-white/90 text-xs">
+              <tr>
+                <th class="px-3 py-3 font-bold text-right w-10">#</th>
+                <th class="px-3 py-3 font-bold text-right">المعلمة</th>
+                <th class="px-3 py-3 font-bold text-right">التصنيف</th>
+                <th class="px-3 py-3 font-bold text-right">الحضور</th>
+                <th class="px-3 py-3 font-bold text-right">التأخر</th>
+                <th class="px-3 py-3 font-bold text-right">الانصراف</th>
+                <th class="px-3 py-3 font-bold text-right">ساعات العمل</th>
+                <th class="px-3 py-3 font-bold text-right">ملاحظات</th>
+                <th class="px-3 py-3 font-bold text-center">إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="table-body" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+        <div id="cards-body" class="md:hidden divide-y divide-slate-100"></div>
+        <div id="table-empty" class="hidden p-10 text-center text-slate-400 font-semibold">لا توجد نتائج مطابقة</div>
+      </div>
+    </div>
+
+    <!-- ======================= الطلبات والأعذار ======================= -->
+    <div id="requests-panel" class="hidden space-y-4">
+      <div class="bg-white rounded-3xl shadow-lift p-3 sm:p-4 fade-up">
+        <div class="flex flex-wrap items-center gap-2">
+          <div id="rq-status" class="flex gap-1.5 overflow-x-auto no-scrollbar w-full lg:w-auto"></div>
+          <div class="flex-1"></div>
+          <select id="rq-type" class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+            <option value="">كل الأنواع</option><option value="permission">استئذان</option><option value="excuse">عذر غياب / إجازة</option>
+          </select>
+          <select id="rq-contract" class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+            <option value="ALL">كل الكادر</option><option value="OFFICIAL">الكادر الرسمي</option><option value="BILAD">عقود البلاد</option>
+          </select>
+          <div class="relative flex-1 min-w-[160px] sm:flex-none sm:w-56">
+            <svg class="w-4 h-4 absolute top-1/2 -translate-y-1/2 right-3 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input id="rq-search" type="search" placeholder="بحث بالاسم أو رقم الطلب…" class="w-full rounded-xl border border-slate-200 bg-slate-50 pr-9 pl-3 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:bg-white">
+          </div>
+          <button id="rq-refresh" class="tool-btn">🔄 <span>تحديث</span></button>
+          <button id="rq-export" class="tool-btn">⬇️ <span>تصدير</span></button>
+        </div>
+        <p class="mt-2 text-[11px] text-slate-400 font-semibold">اعتماد العذر يحدّث سجل الحضور تلقائياً إلى «إجازة / عذر» لكل أيام الدوام في فترته • اعتماد الاستئذان يحوّل الانصراف المبكر إلى «انصراف باستئذان»</p>
+      </div>
+      <div id="rq-list" class="grid grid-cols-1 lg:grid-cols-2 gap-3"></div>
+      <div id="rq-empty" class="hidden bg-white rounded-3xl shadow-soft p-12 text-center"><div class="text-5xl">✅</div><p class="mt-3 font-extrabold text-navy-900">لا توجد طلبات هنا</p><p class="text-sm text-slate-400">ستظهر طلبات المعلمات فور تقديمها</p></div>
+    </div>
+
+    <!-- ======================= إدارة الكادر ======================= -->
+    <div id="staff-panel" class="hidden space-y-4">
+      <div class="bg-white rounded-3xl shadow-lift p-3 sm:p-4 fade-up">
+        <div class="flex flex-wrap items-center gap-2">
+          <div id="st-chips" class="flex gap-1.5 overflow-x-auto no-scrollbar"></div>
+          <div class="relative flex-1 min-w-[170px]">
+            <svg class="w-4 h-4 absolute top-1/2 -translate-y-1/2 right-3 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input id="st-search" type="search" placeholder="بحث بالاسم أو الهوية أو الجوال…" class="w-full rounded-xl border border-slate-200 bg-slate-50 pr-9 pl-3 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:bg-white">
+          </div>
+          <button id="st-add" class="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 text-sm press">➕ إضافة معلمة</button>
+          <button id="st-import" class="tool-btn">⬆️ <span>استيراد</span></button>
+          <button id="st-export" class="tool-btn">⬇️ <span>تصدير Excel</span></button>
+          <button id="st-export-csv" class="tool-btn">⬇️ <span>CSV</span></button>
+        </div>
+        <div class="mt-3 flex flex-wrap items-center gap-2 pt-3 border-t border-slate-100">
+          <span class="text-xs font-bold text-slate-500">حذف جماعي:</span>
+          <button data-bulk="SELECTED" class="tool-btn !text-rose-700" disabled>🗑 المحددات (<span id="st-selcount">0</span>)</button>
+          <button data-bulk="BILAD" class="tool-btn !text-rose-700">🗑 مجموعة عقود البلاد</button>
+          <button data-bulk="OFFICIAL" class="tool-btn !text-rose-700">🗑 مجموعة الرسمي</button>
+          <button data-bulk="ALL" class="tool-btn !bg-rose-50 !text-rose-700">🗑 حذف الكل</button>
+          <span class="hidden sm:inline text-slate-300">|</span>
+          <span class="text-xs font-bold text-slate-500">تغيير تصنيف المحددات إلى:</span>
+          <button data-set-contract="رسمي" class="tool-btn" disabled>● رسمي</button>
+          <button data-set-contract="عقود البلاد" class="tool-btn !bg-gold-50 !text-gold-700" disabled>◆ عقود البلاد</button>
+          <span class="w-full text-[11px] text-slate-400 font-semibold">لتعديل بيانات معلمة (الاسم، الهوية، التصنيف، المسمى، الجوال) اضغطي «✎ تعديل» في صفها • حذف المعلمة لا يحذف سجلات حضورها السابقة • تُؤخذ نسخة احتياطية تلقائياً قبل الحذف الجماعي</span>
+        </div>
+      </div>
+      <div class="bg-white rounded-3xl shadow-soft overflow-hidden fade-up">
+        <div class="hidden md:block overflow-x-auto thin-scroll">
+          <table class="w-full text-sm">
+            <thead class="bg-navy-900 text-white/90 text-xs"><tr>
+              <th class="px-3 py-3 w-10"><input id="st-all" type="checkbox" class="w-4 h-4 accent-emerald-500" aria-label="تحديد الكل"></th>
+              <th class="px-3 py-3 font-bold text-right">المعلمة</th><th class="px-3 py-3 font-bold text-right">رقم الهوية</th>
+              <th class="px-3 py-3 font-bold text-right">التصنيف</th><th class="px-3 py-3 font-bold text-right">المسمى</th>
+              <th class="px-3 py-3 font-bold text-right">الجوال</th><th class="px-3 py-3 font-bold text-right">الجهاز</th><th class="px-3 py-3 font-bold text-center">إجراءات</th>
+            </tr></thead>
+            <tbody id="st-body" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+        <div id="st-cards" class="md:hidden divide-y divide-slate-100"></div>
+        <div id="st-empty" class="hidden p-10 text-center text-slate-400 font-semibold">لا توجد معلمات — أضيفي معلمة أو استوردي قائمة</div>
+      </div>
+    </div>
+
+    <!-- ======================= التقارير ======================= -->
+    <div id="reports-panel" class="hidden space-y-4">
+      <div class="relative z-30 bg-white rounded-3xl shadow-lift p-4 sm:p-5 fade-up">
+        <h2 class="font-extrabold text-navy-900 text-lg">محرك التقارير</h2>
+        <div class="mt-3">
+          <span class="text-xs font-bold text-slate-600">النطاق الزمني</span>
+          <div id="rp-presets" class="mt-1 flex flex-wrap gap-1.5"></div>
+          <div class="mt-2 flex flex-wrap items-end gap-2">
+            <label id="rp-week-wrap" class="hidden"><span class="text-[11px] font-bold text-slate-500">أي يوم من الأسبوع المطلوب</span><input id="rp-week" type="date" class="mt-1 block rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold"></label>
+            <label id="rp-month-wrap" class="hidden"><span class="text-[11px] font-bold text-slate-500">الشهر</span><input id="rp-month" type="month" class="mt-1 block rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold"></label>
+            <label class="rp-custom hidden"><span class="text-[11px] font-bold text-slate-500">من</span><input id="rp-from" type="date" class="mt-1 block rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold"></label>
+            <label class="rp-custom hidden"><span class="text-[11px] font-bold text-slate-500">إلى</span><input id="rp-to" type="date" class="mt-1 block rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold"></label>
+            <div id="rp-range" class="text-sm font-bold text-emerald-700 pb-2"></div>
+          </div>
+        </div>
+        <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <label class="block"><span class="text-xs font-bold text-slate-600">نوع الحركة</span>
+            <select id="rp-kind" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold">
+              <option value="all">كافة الحركات</option><option value="absent">الغياب فقط</option><option value="late">التأخير فقط</option>
+              <option value="early">الانصراف المبكر</option><option value="ontime">الحضور الملتزم</option><option value="excused">الإجازات والأعذار</option><option value="permit">الاستئذان</option>
+            </select></label>
+          <label class="block"><span class="text-xs font-bold text-slate-600">تصنيف الكادر</span>
+            <select id="rp-filter" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold"><option value="ALL">الكل</option><option value="OFFICIAL">الكادر الرسمي</option><option value="BILAD">عقود البلاد</option></select></label>
+          <div class="relative"><span class="text-xs font-bold text-slate-600">المعلمات</span>
+            <button id="rp-teachers-btn" type="button" class="mt-1 w-full text-right rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold flex items-center justify-between"><span id="rp-teachers-label">كل المعلمات</span><span class="text-slate-400">▾</span></button>
+            <div id="rp-teachers-pop" class="hidden absolute z-50 mt-1 w-full sm:w-80 left-0 rounded-2xl bg-white shadow-lift ring-1 ring-slate-200 p-2">
+              <input id="rp-teachers-search" type="search" placeholder="بحث…" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold">
+              <div class="flex gap-2 mt-2 text-xs font-bold"><button id="rp-t-all" class="text-emerald-700 px-2 py-1 rounded-lg hover:bg-emerald-50">تحديد الكل</button><button id="rp-t-none" class="text-rose-700 px-2 py-1 rounded-lg hover:bg-rose-50">إلغاء التحديد (= الكل)</button></div>
+              <div id="rp-teachers-list" class="mt-1 max-h-64 overflow-y-auto thin-scroll"></div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4 flex flex-wrap items-center gap-2">
+          <button id="rp-run" class="rounded-xl bg-navy-900 hover:bg-navy-800 text-white font-extrabold px-6 py-3 press flex items-center gap-2 disabled:opacity-60">إنشاء التقرير</button>
+          <div class="flex-1"></div>
+          <button id="rp-pdf" class="tool-btn" disabled>🖨️ <span>PDF / طباعة</span></button>
+          <button id="rp-xlsx" class="tool-btn" disabled>📗 <span>Excel</span></button>
+          <button id="rp-word" class="tool-btn" disabled>📘 <span>Word</span></button>
+        </div>
+      </div>
+      <div id="rp-result"></div>
+    </div>
+
+    <div id="admin-loading" class="hidden space-y-4">
+      <div class="grid grid-cols-2 lg:grid-cols-6 gap-3"><div class="h-28 rounded-3xl shimmer"></div><div class="h-28 rounded-3xl shimmer"></div><div class="h-28 rounded-3xl shimmer"></div><div class="h-28 rounded-3xl shimmer"></div><div class="h-28 rounded-3xl shimmer hidden lg:block"></div><div class="h-28 rounded-3xl shimmer hidden lg:block"></div></div>
+      <div class="h-96 rounded-3xl shimmer"></div>
+    </div>
+  </section>
+
+  <footer class="mt-10 text-center text-[11px] text-slate-400 font-medium">
+    نظام الحضور والانصراف المدرسي الذكي • الإصدار <span id="app-version"></span> • بتوقيت الرياض
+  </footer>
+</main>
+
+<!-- ======================= النوافذ المنبثقة ======================= -->
+<div id="modal-backdrop" class="hidden fixed inset-0 z-40 bg-navy-950/50 backdrop-blur-sm"></div>
+
+<!-- تعديل / تسجيل حركة -->
+<div id="modal-edit" class="modal hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+  <div class="min-h-full flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="modal-panel w-full sm:max-w-lg bg-white rounded-t-3xl sm:rounded-3xl shadow-lift p-5 sm:p-6 pop">
+      <div class="flex items-start justify-between gap-3">
+        <div><h3 id="edit-title" class="text-lg font-extrabold text-navy-900">تعديل يدوي</h3><p id="edit-sub" class="text-sm text-slate-500"></p></div>
+        <button class="modal-close w-9 h-9 rounded-full hover:bg-slate-100 grid place-items-center text-slate-500" aria-label="إغلاق"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <label id="edit-teacher-wrap" class="hidden block sm:col-span-2"><span class="text-xs font-bold text-slate-600">المعلمة</span><select id="edit-teacher" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/40"></select></label>
+        <label class="block sm:col-span-2"><span class="text-xs font-bold text-slate-600">تاريخ الحركة</span><input id="edit-date" type="date" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/40"></label>
+      </div>
+      <div id="edit-existing" class="mt-2 text-xs font-bold"></div>
+      <div class="mt-3 grid grid-cols-3 gap-1 p-1 rounded-2xl bg-slate-100" id="edit-mode">
+        <button data-mode="auto" class="mode-btn rounded-xl py-2 text-sm font-bold">حضور</button>
+        <button data-mode="excused" class="mode-btn rounded-xl py-2 text-sm font-bold">إجازة / عذر</button>
+        <button data-mode="absent" class="mode-btn rounded-xl py-2 text-sm font-bold">غياب</button>
+      </div>
+      <div id="edit-times" class="mt-4 grid grid-cols-2 gap-3">
+        <label class="block"><span class="text-xs font-bold text-slate-600">وقت الحضور</span><input id="edit-in" type="time" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/40"></label>
+        <label class="block"><span class="text-xs font-bold text-slate-600">وقت الانصراف (اختياري)</span><input id="edit-out" type="time" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/40"></label>
+        <label class="block"><span class="text-xs font-bold text-slate-600">ساعات العمل (تعديل يدوي)</span><input id="edit-hours" dir="ltr" placeholder="تلقائي — مثال 6:30" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-bold text-right focus:outline-none focus:ring-2 focus:ring-emerald-500/40"></label>
+        <label class="flex items-center gap-2 rounded-xl ring-1 ring-slate-200 px-3 mt-5 cursor-pointer"><input id="edit-permit" type="checkbox" class="w-4 h-4 accent-violet-600"><span class="text-xs font-bold text-slate-600">الانصراف المبكر باستئذان</span></label>
+      </div>
+      <div id="edit-preview" class="mt-3 rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600"></div>
+      <label class="block mt-3"><span class="text-xs font-bold text-slate-600">ملاحظة إدارية توثّق التعديل <span class="text-rose-600">(إلزامية)</span></span><textarea id="edit-notes" rows="2" maxlength="300" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40" placeholder="مثال: نسيت تسجيل الحضور — تم التحقق من سجل البوابة"></textarea></label>
+      <div class="mt-5 flex flex-wrap gap-2">
+        <button id="edit-save" class="flex-1 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 press flex items-center justify-center gap-2 disabled:opacity-60">حفظ</button>
+        <button id="edit-delete" class="rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold px-4 py-3 press">حذف السجل</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- الصيانة -->
+<div id="modal-maint" class="modal hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+  <div class="min-h-full flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="modal-panel w-full sm:max-w-xl bg-white rounded-t-3xl sm:rounded-3xl shadow-lift p-5 sm:p-6 pop">
+      <div class="flex items-start justify-between gap-3">
+        <div><h3 class="text-lg font-extrabold text-navy-900">أدوات الصيانة السريعة</h3><p class="text-sm text-slate-500">تُنفَّذ مباشرة على ملف Google Sheets</p></div>
+        <button class="modal-close w-9 h-9 rounded-full hover:bg-slate-100 grid place-items-center text-slate-500" aria-label="إغلاق"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="mt-4 rounded-2xl bg-gold-50 ring-1 ring-gold-300/60 p-4">
+        <div class="font-extrabold text-navy-900">🔑 رموز تفعيل جوالات المعلمات</div>
+        <p class="text-xs text-slate-600 mt-1 leading-relaxed">كل معلمة تفعّل جوالها مرة واحدة برقم هويتها ورمز سري من 6 أرقام صالح 7 أيام. بوابة المعلمة لا تعرض أي أسماء، والجوال المفعّل لا يقبل معلمة أخرى.</p>
+        <button id="codes-unbound" class="mt-3 w-full rounded-xl bg-navy-900 hover:bg-navy-800 text-white font-bold py-2.5 text-sm press disabled:opacity-60 flex items-center justify-center gap-2">إصدار رموز لجميع غير المفعّلات</button>
+        <p class="text-[11px] text-slate-500 mt-2">لتغيير جوال معلمة: من قسم «الكادر» اضغطي «فك الارتباط» ثم 🔑 لإصدار رمز جديد.</p>
+      </div>
+      <div class="mt-4 space-y-2">
+        <button data-maint="initSheets" class="maint-btn w-full text-right rounded-2xl ring-1 ring-slate-200 hover:ring-emerald-300 hover:bg-emerald-50/50 p-4 press">
+          <div class="font-extrabold text-navy-900">تجهيز الأوراق والتنسيقات</div><div class="text-xs text-slate-500 mt-0.5">ينشئ الأوراق الثلاث بالأعمدة والألوان دون المساس بالبيانات</div>
+        </button>
+        <button data-maint="dedup" class="maint-btn w-full text-right rounded-2xl ring-1 ring-slate-200 hover:ring-emerald-300 hover:bg-emerald-50/50 p-4 press">
+          <div class="font-extrabold text-navy-900">تنظيف ودمج السجلات المكررة</div><div class="text-xs text-slate-500 mt-0.5">يدمج أي صفوف مكررة لنفس المعلمة في نفس اليوم، ويوحّد الصيغ ويعيد حساب ساعات العمل</div>
+        </button>
+        <button data-maint="migrateLegacy" class="maint-btn w-full text-right rounded-2xl ring-1 ring-slate-200 hover:ring-emerald-300 hover:bg-emerald-50/50 p-4 press">
+          <div class="font-extrabold text-navy-900">ترحيل بيانات «ورقة 1» القديمة</div><div class="text-xs text-slate-500 mt-0.5">ينسخ الحركات القديمة إلى سجل_الحضور ثم ينظفها (لا يحذف الورقة الأصلية)</div>
+        </button>
+      </div>
+      <div id="maint-result" class="hidden mt-3 rounded-2xl px-4 py-3 text-sm font-semibold"></div>
+
+      <div class="mt-6 pt-5 border-t border-slate-100">
+        <h4 class="font-extrabold text-navy-900">💾 النسخ الاحتياطي والاستعادة</h4>
+        <p class="text-xs text-slate-500 mt-1">النسخة الكاملة تُحفظ كملف Google Sheets مؤرخ في حسابك على Drive. ملف JSON / Excel يُنزَّل على جهازك.</p>
+        <div class="mt-3 grid grid-cols-2 gap-2">
+          <button id="bk-drive" class="rounded-xl bg-navy-900 hover:bg-navy-800 text-white font-bold py-2.5 text-sm press disabled:opacity-60 flex items-center justify-center gap-2">نسخة كاملة في Drive</button>
+          <button id="bk-json" class="rounded-xl bg-slate-100 hover:bg-slate-200 text-navy-900 font-bold py-2.5 text-sm press disabled:opacity-60 flex items-center justify-center gap-2">تنزيل JSON</button>
+          <button id="bk-xlsx" class="rounded-xl bg-slate-100 hover:bg-slate-200 text-navy-900 font-bold py-2.5 text-sm press disabled:opacity-60 flex items-center justify-center gap-2">تنزيل Excel</button>
+          <label id="bk-restore" class="rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold py-2.5 text-sm press cursor-pointer flex items-center justify-center gap-2">استعادة من ملف JSON<input id="bk-file" type="file" accept=".json,application/json" class="hidden"></label>
+        </div>
+        <label class="mt-2 flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer"><input id="bk-settings" type="checkbox" checked class="w-4 h-4 accent-emerald-600">عند الاستعادة: استرجاع الإعدادات والشعار أيضاً</label>
+        <div id="bk-progress" class="hidden mt-2 text-xs font-bold text-emerald-700"></div>
+        <div id="bk-list" class="mt-3 space-y-1"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- الإعدادات -->
+<div id="modal-settings" class="modal hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+  <div class="min-h-full flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="modal-panel w-full sm:max-w-2xl bg-white rounded-t-3xl sm:rounded-3xl shadow-lift p-5 sm:p-6 pop">
+      <div class="flex items-start justify-between gap-3">
+        <div><h3 class="text-lg font-extrabold text-navy-900">الإعدادات وهوية المدرسة</h3><p class="text-sm text-slate-500">تُحفظ على الخادم وتسري على جميع الأجهزة</p></div>
+        <button class="modal-close w-9 h-9 rounded-full hover:bg-slate-100 grid place-items-center text-slate-500" aria-label="إغلاق"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="col-span-2 sm:col-span-4 rounded-2xl ring-1 ring-slate-200 p-4">
+          <h4 class="font-extrabold text-navy-900">هوية المدرسة وبيانات الإدارة</h4>
+          <p class="text-xs text-slate-500">تظهر في ترويسة الشاشات وجميع التقارير المطبوعة والمصدّرة</p>
+          <div class="mt-3 flex flex-col sm:flex-row gap-4">
+            <div class="shrink-0 text-center">
+              <div id="s-logo-preview" class="w-24 h-24 mx-auto rounded-2xl ring-1 ring-slate-200 bg-slate-50 grid place-items-center overflow-hidden text-[11px] text-slate-400 font-bold">لا يوجد شعار</div>
+              <label class="mt-2 tool-btn cursor-pointer">رفع شعار<input id="s-logo-file" type="file" accept="image/png,image/jpeg,image/webp" class="hidden"></label>
+              <button id="s-logo-remove" type="button" class="block mx-auto mt-1 text-[11px] font-bold text-rose-600 hover:underline">حذف الشعار</button>
+            </div>
+            <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <label class="block"><span class="text-xs font-bold text-slate-600">اسم المدرسة</span><input id="s-school" maxlength="80" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold"></label>
+              <label class="block"><span class="text-xs font-bold text-slate-600">الإدارة التعليمية</span><input id="s-edu" maxlength="80" placeholder="الإدارة العامة للتعليم بمنطقة…" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold"></label>
+              <label class="block"><span class="text-xs font-bold text-slate-600">مديرة المدرسة</span><input id="s-principal" maxlength="80" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold"></label>
+              <label class="block"><span class="text-xs font-bold text-slate-600">وكيلة شؤون المعلمات</span><input id="s-deputy" maxlength="80" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold"></label>
+            </div>
+          </div>
+        </div>
+        <label class="block"><span class="text-xs font-bold text-slate-600">بداية الدوام</span><input id="s-start" type="time" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-bold"></label>
+        <label class="block"><span class="text-xs font-bold text-slate-600">نهاية الدوام</span><input id="s-end" type="time" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-bold"></label>
+        <label class="block"><span class="text-xs font-bold text-slate-600">فتح التسجيل من</span><input id="s-open" type="time" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-bold"></label>
+        <label class="block"><span class="text-xs font-bold text-slate-600">فترة السماح (دقيقة)</span><input id="s-grace" type="number" min="0" max="120" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-bold"></label>
+      </div>
+      <div class="mt-3">
+        <span class="text-xs font-bold text-slate-600">أيام الدوام</span>
+        <div id="s-days" class="mt-1 flex flex-wrap gap-1.5"></div>
+      </div>
+
+      <div class="mt-5 rounded-2xl ring-1 ring-slate-200 p-4">
+        <div class="flex items-center justify-between gap-2">
+          <h4 class="font-extrabold text-navy-900">النطاق الجغرافي للمدرسة</h4>
+          <button id="s-use-loc" class="text-xs font-bold text-emerald-700 hover:bg-emerald-50 rounded-xl px-3 py-2 press">📍 استخدام موقعي الحالي</button>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">اضغطي الزر وأنتِ داخل المدرسة لتحديد الإحداثيات بدقة</p>
+        <div class="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <input id="s-lat" dir="ltr" inputmode="decimal" placeholder="Latitude" class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-mono">
+          <input id="s-lng" dir="ltr" inputmode="decimal" placeholder="Longitude" class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-mono">
+          <label class="col-span-2 sm:col-span-1 flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3"><span class="text-xs font-bold text-slate-600 whitespace-nowrap">نصف القطر (م)</span><input id="s-radius" type="number" min="30" max="5000" class="w-full bg-transparent py-2.5 font-bold focus:outline-none"></label>
+        </div>
+        <label class="mt-2 flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3"><span class="text-xs font-bold text-slate-600 whitespace-nowrap">أقصى هامش خطأ مقبول لـ GPS (م)</span><input id="s-acc" type="number" min="20" max="500" class="w-full bg-transparent py-2.5 font-bold focus:outline-none"></label>
+        <label class="mt-3 flex items-center gap-3 cursor-pointer"><input id="s-enforce" type="checkbox" class="w-5 h-5 accent-emerald-600"><span class="text-sm"><b>إلزام التسجيل من داخل النطاق (صارم)</b><span class="block text-xs text-slate-500">لا يُفعَّل زر التسجيل للمعلمة إلا داخل النطاق وبقراءة GPS دقيقة وحديثة. عند الإيقاف: يُسمح مع توثيق «خارج النطاق»</span></span></label>
+        <label class="mt-2 flex items-center gap-3 cursor-pointer"><input id="s-fp" type="checkbox" class="w-5 h-5 accent-emerald-600"><span class="text-sm"><b>رفض التسجيل عند تغيّر بصمة الجهاز</b><span class="block text-xs text-slate-500">عند الإيقاف: يُسمح بالتسجيل مع ظهور تنبيه أمني ⚠ بجانب اسم المعلمة في اللوحة</span></span></label>
+      </div>
+      <button id="s-save" class="mt-4 w-full rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 press disabled:opacity-60">حفظ الإعدادات</button>
+
+      <div class="mt-6 pt-5 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <h4 class="font-extrabold text-navy-900">تغيير الرمز السري</h4>
+          <div class="mt-2 flex gap-2">
+            <input id="s-pin1" type="password" inputmode="numeric" maxlength="8" placeholder="الرمز الجديد" dir="ltr" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-bold text-center">
+            <input id="s-pin2" type="password" inputmode="numeric" maxlength="8" placeholder="تأكيده" dir="ltr" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-bold text-center">
+          </div>
+          <button id="s-pin-save" class="mt-2 w-full rounded-xl bg-navy-900 hover:bg-navy-800 text-white font-bold py-2.5 press">تغيير الرمز</button>
+        </div>
+        <div>
+          <h4 class="font-extrabold text-navy-900">رابط الخادم (هذا الجهاز)</h4>
+          <input id="s-api" dir="ltr" type="url" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-mono">
+          <div class="mt-2 flex gap-2">
+            <button id="s-api-save" class="flex-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-navy-900 font-bold py-2.5 press">حفظ واختبار</button>
+            <button id="s-copy-link" class="flex-1 rounded-xl bg-gold-50 hover:bg-gold-100 text-gold-700 font-bold py-2.5 press">نسخ رابط بوابة المعلمات</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- بيانات معلمة -->
+<div id="modal-teacher" class="modal hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+  <div class="min-h-full flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="modal-panel w-full sm:max-w-lg bg-white rounded-t-3xl sm:rounded-3xl shadow-lift p-5 sm:p-6 pop">
+      <div class="flex items-start justify-between gap-3">
+        <h3 id="tm-title" class="text-lg font-extrabold text-navy-900">إضافة معلمة</h3>
+        <button class="modal-close w-9 h-9 rounded-full hover:bg-slate-100 grid place-items-center text-slate-500" aria-label="إغلاق"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <label class="block"><span class="text-xs font-bold text-slate-600">رقم الهوية (10 أرقام)</span><input id="tm-id" inputmode="numeric" maxlength="10" dir="ltr" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold text-right"><span id="tm-id-hint" class="hidden block mt-1 text-[10px] text-slate-400 font-semibold">تغييره يحدّث سجلاتها السابقة تلقائياً</span></label>
+        <label class="block"><span class="text-xs font-bold text-slate-600">نوع العقد / التصنيف</span><select id="tm-contract" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold"><option>رسمي</option><option>عقود البلاد</option></select></label>
+        <label class="block sm:col-span-2"><span class="text-xs font-bold text-slate-600">الاسم الرباعي</span><input id="tm-name" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold"></label>
+        <label class="block"><span class="text-xs font-bold text-slate-600">المسمى الوظيفي</span><input id="tm-job" placeholder="معلمة" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold"></label>
+        <label class="block"><span class="text-xs font-bold text-slate-600">رقم الجوال (اختياري)</span><input id="tm-phone" inputmode="tel" dir="ltr" placeholder="05XXXXXXXX" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold text-right"></label>
+      </div>
+      <button id="tm-save" class="mt-5 w-full rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 press disabled:opacity-60 flex items-center justify-center gap-2">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- استيراد الكادر -->
+<div id="modal-import" class="modal hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+  <div class="min-h-full flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="modal-panel w-full sm:max-w-3xl bg-white rounded-t-3xl sm:rounded-3xl shadow-lift p-5 sm:p-6 pop">
+      <div class="flex items-start justify-between gap-3">
+        <div><h3 class="text-lg font-extrabold text-navy-900">استيراد قائمة المعلمات</h3><p class="text-sm text-slate-500">ملف Excel (.xlsx) أو CSV بالأعمدة: رقم الهوية، الاسم، التصنيف، المسمى، الجوال</p></div>
+        <button class="modal-close w-9 h-9 rounded-full hover:bg-slate-100 grid place-items-center text-slate-500" aria-label="إغلاق"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="mt-4 flex flex-wrap items-center gap-2">
+        <label class="rounded-xl bg-navy-900 hover:bg-navy-800 text-white font-bold px-4 py-2.5 text-sm press cursor-pointer">اختيار ملف<input id="im-file" type="file" accept=".xlsx,.xls,.csv,text/csv" class="hidden"></label>
+        <button id="im-template" class="tool-btn">⬇️ تنزيل قالب فارغ</button>
+        <span id="im-name" class="text-xs font-bold text-slate-500"></span>
+      </div>
+      <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <label class="flex items-start gap-2 rounded-xl ring-1 ring-slate-200 p-3 cursor-pointer"><input type="radio" name="im-mode" value="merge" checked class="mt-1 accent-emerald-600"><span class="text-sm"><b>دمج</b><span class="block text-xs text-slate-500">إضافة الجديدات وتحديث الموجودات، ولا يُحذف أحد</span></span></label>
+        <label class="flex items-start gap-2 rounded-xl ring-1 ring-slate-200 p-3 cursor-pointer"><input type="radio" name="im-mode" value="replace" class="mt-1 accent-rose-600"><span class="text-sm"><b>استبدال الكادر كاملاً</b><span class="block text-xs text-slate-500">تُحذف من ليست في الملف (مع نسخة احتياطية تلقائية)</span></span></label>
+      </div>
+      <div id="im-summary" class="mt-3 text-sm font-bold"></div>
+      <div id="im-preview" class="mt-2 max-h-[40vh] overflow-auto thin-scroll rounded-2xl ring-1 ring-slate-200"></div>
+      <button id="im-go" class="mt-4 w-full rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 press disabled:opacity-50 flex items-center justify-center gap-2" disabled>استيراد</button>
+    </div>
+  </div>
+</div>
+
+<!-- رموز التفعيل -->
+<div id="modal-codes" class="modal hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+  <div class="min-h-full flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="modal-panel w-full sm:max-w-2xl bg-white rounded-t-3xl sm:rounded-3xl shadow-lift p-5 sm:p-6 pop">
+      <div class="flex items-start justify-between gap-3">
+        <div><h3 class="text-lg font-extrabold text-navy-900">🔑 رموز التفعيل</h3><p id="codes-sub" class="text-sm text-slate-500"></p></div>
+        <button class="modal-close w-9 h-9 rounded-full hover:bg-slate-100 grid place-items-center text-slate-500" aria-label="إغلاق"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="mt-3 rounded-2xl bg-rose-50 ring-1 ring-rose-200 px-4 py-2.5 text-xs font-bold text-rose-800">الرموز سرية: سلّمي كل رمز لصاحبته شخصياً أو برسالة خاصة. تظهر هنا مرة واحدة فقط (يمكنك إصدار رمز جديد في أي وقت).</div>
+      <div id="codes-list" class="mt-3 space-y-2 max-h-[55vh] overflow-y-auto thin-scroll"></div>
+      <div class="mt-4 flex gap-2">
+        <button id="codes-print" class="flex-1 rounded-2xl bg-navy-900 hover:bg-navy-800 text-white font-extrabold py-3 press">🖨️ طباعة بطاقات التفعيل</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- تأكيد -->
+<div id="modal-confirm" class="modal hidden fixed inset-0 z-[60] overflow-y-auto" role="alertdialog" aria-modal="true">
+  <div class="min-h-full flex items-center justify-center p-4">
+    <div class="modal-panel w-full max-w-sm bg-white rounded-3xl shadow-lift p-6 pop text-center">
+      <div id="confirm-icon" class="w-12 h-12 mx-auto rounded-2xl bg-amber-50 text-amber-600 grid place-items-center text-2xl">!</div>
+      <h3 id="confirm-title" class="mt-3 text-lg font-extrabold text-navy-900"></h3>
+      <p id="confirm-text" class="mt-1 text-sm text-slate-500"></p>
+      <input id="confirm-input" class="hidden mt-3 w-full text-center rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-bold focus:outline-none focus:ring-2 focus:ring-rose-400/50">
+      <div class="mt-5 grid grid-cols-2 gap-2">
+        <button id="confirm-ok" class="rounded-2xl bg-navy-900 text-white font-bold py-3 press">تأكيد</button>
+        <button id="confirm-cancel" class="rounded-2xl bg-slate-100 text-slate-700 font-bold py-3 press">إلغاء</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- التنبيهات -->
+<div id="toasts" class="fixed top-3 inset-x-0 z-[70] flex flex-col items-center gap-2 px-3 pointer-events-none" aria-live="polite"></div>
+
+<!-- منطقة الطباعة -->
+<div id="print-root"></div>
+
+<style>
+  .tool-btn { display: inline-flex; align-items: center; gap: .35rem; border-radius: .85rem; padding: .5rem .8rem; font-size: .8rem; font-weight: 700; color: #13294b; background: #f1f5f9; transition: background-color .2s, transform .12s; }
+  .tool-btn:hover:not(:disabled) { background: #e2e8f0; }
+  .tool-btn:active:not(:disabled) { transform: scale(.96); }
+  .tool-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .tab-btn { color: rgba(255,255,255,.75); }
+  .tab-btn[aria-selected="true"] { background: #fff; color: #0b1f3a; box-shadow: 0 6px 18px -6px rgba(0,0,0,.35); }
+  .mode-btn { color: #475569; transition: all .2s; }
+  .mode-btn[aria-pressed="true"] { background: #fff; color: #065f46; box-shadow: 0 2px 8px -2px rgba(11,31,58,.18); }
+  @media (max-width: 420px) { .tool-btn span { display: none; } }
+</style>
+
+<script>
+'use strict';
+/* =====================================================================
+ *  لوحة تحكم الوكيلة — نظام الحضور والانصراف الذكي (admin.html)
+ *  ضعي رابط تطبيق الويب هنا عند الاستضافة المستقلة (عند الفتح من Web App يُحقن تلقائياً):
+ * ===================================================================== */
+const APP = Object.freeze({
+  VERSION: '4.1.1',
+  MIN_SERVER: '4.1.0',                 // أقل إصدار من Code.gs تعمل معه هذه الصفحة
+  DEFAULT_API_URL: 'https://script.google.com/macros/s/AKfycbzuIgZWC1ZQSOEIm-QuQjQoI4ae2uRqXPRaE_Y7WR699PNY8VMDdwTrRtohWGwCZXqU/exec',                 // ← مثال: 'https://script.google.com/macros/s/XXXX/exec'
+  INJECTED_API_URL: '<?!= apiUrl ?>',   // يُملأ تلقائياً عند الخدمة من Apps Script (?page=admin) — لا تعدّليه
+  TEACHER_URL: 'https://omaalomarea-lgtm.github.io/teacher2f/',   // رابط بوابة المعلمات المنشور (يُستخدم في زر النسخ وبطاقات التفعيل)
+  TEACHER_PAGE: 'teacher.html',        // اسم ملف بوابة المعلمة عند الاستضافة المستقلة
+  TZ: 'Asia/Riyadh',
+  AUTO_REFRESH_MS: 60000
+});
+
+const STATUS = Object.freeze({
+  ON_TIME: 'حضور في الموعد', LATE: 'حضور متأخر', ABSENT: 'غائبة', EXCUSED: 'إجازة / عذر',
+  NOT_OUT: 'لم تنصرف بعد', OUT: 'انصراف نظامي', EARLY: 'انصراف مبكر', PERMIT: 'انصراف باستئذان', NONE: '-'
+});
+const CONTRACT = Object.freeze({ OFFICIAL: 'رسمي', BILAD: 'عقود البلاد' });
+const REQ = Object.freeze({ PERMISSION: 'استئذان', EXCUSE: 'عذر غياب / إجازة', PENDING: 'قيد الانتظار', APPROVED: 'معتمد', REJECTED: 'مرفوض' });
+const READ_ACTIONS = new Set(['ping', 'bootstrap', 'dashboard', 'report', 'getSettings', 'getRequests', 'listTeachers', 'getLogo', 'backupList', 'backupExport', 'getRecord']);
+
+/* ============================ أدوات عامة ============================ */
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+const Util = {
+  esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  },
+  normalizeAr(s) {
+    return String(s || '').replace(/[ً-ْـ]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ة/g, 'ه')
+      .replace(/ى/g, 'ي').replace(/ؤ/g, 'و').replace(/ئ/g, 'ي').replace(/\s+/g, ' ').trim().toLowerCase();
+  },
+  latin(s) { return String(s || '').replace(/[٠-٩]/g, d => d.charCodeAt(0) - 1632).replace(/[۰-۹]/g, d => d.charCodeAt(0) - 1776); },
+  pad(n) { return String(n).padStart(2, '0'); },
+  minutes(t) { const m = /^(\d{1,2}):(\d{2})/.exec(t || ''); return m ? (+m[1]) * 60 + (+m[2]) : NaN; },
+  fmt12(t) {
+    const mins = Util.minutes(t);
+    if (!isFinite(mins)) return '—';
+    const h = Math.floor(mins / 60), m = mins % 60;
+    return `${((h + 11) % 12) + 1}:${Util.pad(m)} ${h < 12 ? 'ص' : 'م'}`;
+  },
+  dur(mins) { return isFinite(mins) && mins >= 0 ? `${Math.floor(mins / 60)}:${Util.pad(mins % 60)}` : '-'; },
+  initials(name) { const p = String(name || '').trim().split(/\s+/); return (p[0] || '').charAt(0) + (p[1] || '').charAt(0); },
+  addDays(dateStr, n) {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d, 12) + n * 864e5);
+    return `${dt.getUTCFullYear()}-${Util.pad(dt.getUTCMonth() + 1)}-${Util.pad(dt.getUTCDate())}`;
+  },
+  dayDiff(a, b) {
+    const p = s => { const [y, m, d] = s.split('-').map(Number); return Date.UTC(y, m - 1, d); };
+    return Math.round((p(b) - p(a)) / 864e5);
+  },
+  dateLabel(dateStr, opts = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) {
+    if (!dateStr) return '';
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn', { ...opts, timeZone: 'UTC' }).format(new Date(Date.UTC(y, m - 1, d, 12)));
+  },
+  hijriLabel(dateStr) {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    try { return new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-latn', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(Date.UTC(y, m - 1, d, 12))); }
+    catch (e) { return ''; }
+  },
+  debounce(fn, ms = 200) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; },
+  uuid() {
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    const b = new Uint8Array(16); (window.crypto || {}).getRandomValues ? crypto.getRandomValues(b) : b.forEach((_, i) => b[i] = Math.random() * 256 | 0);
+    return Array.from(b, x => x.toString(16).padStart(2, '0')).join('').replace(/^(.{8})(.{4})(.{4})(.{4})/, '$1-$2-$3-$4-');
+  },
+  distance(lat1, lng1, lat2, lng2) {
+    const R = 6371000, r = x => x * Math.PI / 180;
+    const a = Math.sin(r(lat2 - lat1) / 2) ** 2 + Math.cos(r(lat1)) * Math.cos(r(lat2)) * Math.sin(r(lng2 - lng1) / 2) ** 2;
+    return Math.round(2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+  },
+  meters(m) { return m >= 1000 ? `${(m / 1000).toFixed(1)} كم` : `${m} م`; },
+  csv(filename, headers, rows) {
+    const cell = v => {
+      const s = String(v == null ? '' : v);
+      return /^\d{10}$/.test(s) ? `="${s}"` : `"${s.replace(/"/g, '""')}"`;
+    };
+    const content = '﻿' + [headers, ...rows].map(r => r.map(cell).join(',')).join('\r\n');
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  },
+  vibrate(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) { } }
+};
+
+/* ============================ التخزين المحلي الآمن ============================ */
+const Store = {
+  mem: {},                                // بديل في الذاكرة عند حظر التخزين في المتصفح
+  get available() { try { localStorage.setItem('__p', '1'); localStorage.removeItem('__p'); return true; } catch (e) { return false; } },
+  _get(area, k, def) {
+    try { const v = window[area].getItem('att.' + k); return v == null ? def : JSON.parse(v); }
+    catch (e) { const m = this.mem[area + k]; return m === undefined ? def : JSON.parse(m); }
+  },
+  _set(area, k, v) { try { window[area].setItem('att.' + k, JSON.stringify(v)); } catch (e) { this.mem[area + k] = JSON.stringify(v); } },
+  _del(area, k) { try { window[area].removeItem('att.' + k); } catch (e) { } delete this.mem[area + k]; },
+  get(k, d) { return this._get('localStorage', k, d); }, set(k, v) { this._set('localStorage', k, v); }, del(k) { this._del('localStorage', k); },
+  sget(k, d) { return this._get('sessionStorage', k, d); }, sset(k, v) { this._set('sessionStorage', k, v); }, sdel(k) { this._del('sessionStorage', k); }
+};
+
+/* ============================ التنبيهات (Toast) ============================ */
+const Toast = {
+  styles: {
+    success: ['bg-emerald-600', '<path d="M20 6L9 17l-5-5"/>'],
+    error: ['bg-rose-600', '<path d="M18 6L6 18M6 6l12 12"/>'],
+    warn: ['bg-amber-500', '<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/>'],
+    info: ['bg-navy-800', '<circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/>']
+  },
+  show(type, message, ms = 4500) {
+    const [bg, icon] = this.styles[type] || this.styles.info;
+    const el = document.createElement('div');
+    el.className = `toast-enter pointer-events-auto w-full max-w-md flex items-start gap-3 rounded-2xl ${bg} text-white shadow-lift px-4 py-3`;
+    el.setAttribute('role', type === 'error' ? 'alert' : 'status');
+    el.innerHTML = `<svg class="w-5 h-5 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${icon}</svg>
+      <div class="flex-1 text-sm font-semibold leading-relaxed">${Util.esc(message)}</div>
+      <button class="opacity-70 hover:opacity-100 shrink-0" aria-label="إغلاق"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6L6 18M6 6l12 12"/></svg></button>`;
+    const close = () => { el.classList.replace('toast-enter', 'toast-leave'); setTimeout(() => el.remove(), 250); };
+    el.querySelector('button').onclick = close;
+    $('#toasts').prepend(el);
+    while ($('#toasts').children.length > 3) $('#toasts').lastElementChild.remove();
+    setTimeout(close, ms);
+  },
+  success(m) { this.show('success', m); }, error(m) { this.show('error', m, 6500); },
+  warn(m) { this.show('warn', m, 6000); }, info(m) { this.show('info', m); }
+};
+
+/* ============================ مؤشر الاتصال ============================ */
+const Conn = {
+  set(state, mode) {
+    const dot = $('#conn-dot'), text = $('#conn-text');
+    const map = {
+      connecting: ['bg-amber-400 text-amber-400 pulse-dot', 'جارٍ الاتصال…'],
+      online: ['bg-emerald-400 text-emerald-400', mode === 'jsonp' ? 'متصل • JSONP' : 'متصل بالخادم'],
+      offline: ['bg-rose-500 text-rose-500 pulse-dot', navigator.onLine ? 'تعذر الاتصال' : 'لا يوجد إنترنت'],
+      unset: ['bg-slate-400 text-slate-400', 'غير مربوط']
+    };
+    const [cls, label] = map[state] || map.connecting;
+    dot.className = `w-2.5 h-2.5 rounded-full ${cls}`;
+    text.textContent = label;
+  }
+};
+
+/* ============================ طبقة الاتصال (API) ============================ */
+class ApiError extends Error { constructor(code, message) { super(message); this.code = code; } }
+
+const Api = {
+  mode: (window.google && google.script && google.script.run) ? 'gas' : 'fetch',   // gas داخل Web App، وإلا fetch ثم JSONP
+  get url() {
+    const injected = String(APP.INJECTED_API_URL).replace(/^["']|["']$/g, '');
+    if (/^https:\/\//.test(injected)) return injected;
+    // الرابط المكتوب داخل الملف له الأولوية دائماً على أي رابط قديم محفوظ في المتصفح
+    return String(APP.DEFAULT_API_URL || Store.get('apiUrl', '') || '').trim();
+  },
+  qs(obj) {
+    return Object.entries(obj).filter(([, v]) => v !== undefined && v !== null)
+      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(typeof v === 'object' ? JSON.stringify(v) : v)}`).join('&');
+  },
+  async call(action, data = {}, opts = {}) {
+    const payload = { action, ...data };
+    if (opts.admin) payload.token = Admin.token;
+    let res = null;
+    if (this.mode === 'gas') {
+      res = await new Promise((resolve, reject) => google.script.run.withSuccessHandler(resolve)
+        .withFailureHandler(err => reject(new ApiError('NETWORK', 'تعذر الاتصال بالخادم: ' + (err && err.message ? err.message : err)))).apiRun(payload))
+        .catch(err => { Conn.set('offline'); throw err; });
+    } else {
+      const url = this.url;
+      if (!url) { Conn.set('unset'); throw new ApiError('NO_URL', 'لم يتم ربط النظام بالخادم بعد'); }
+      if (this.mode === 'fetch') {
+        try { res = await this.viaFetch(url, payload, opts.timeout || 20000); }
+        catch (err) { this.mode = 'jsonp'; console.warn('[API] fetch failed → JSONP fallback', err); }
+      }
+      if (!res) {
+        // في وضع JSONP تُرفع البيانات الكبيرة (استيراد/استعادة/شعار) على أجزاء صغيرة
+        const jp = opts.big ? await this.uploadChunks(url, action, data, opts) : payload;
+        try { res = await this.viaJsonp(url, jp, opts.timeout || 25000); }
+        catch (err) {
+          if (err.code === 'NETWORK' || err.code === 'TIMEOUT') {
+            await new Promise(r => setTimeout(r, 800));
+            try { res = await this.viaJsonp(url, jp, opts.timeout || 25000); }
+            catch (err2) { Conn.set('offline'); throw err2; }
+          } else { Conn.set('offline'); throw err; }
+        }
+      }
+    }
+    Conn.set('online', this.mode);
+    if (res && res.code === 'UNKNOWN_ACTION') {
+      res.message = 'الخادم المنشور لا يعرف الأمر «' + action + '» لأنه يعمل بإصدار قديم من Code.gs. الصقي Code.gs الجديد ثم انشري «New version» من Manage deployments.';
+      if (typeof App !== 'undefined') App.checkServer('قديم');
+    }
+    if (!res || res.success === false) throw new ApiError((res && res.code) || 'FAILED', (res && res.message) || 'فشلت العملية، حاولي مجدداً');
+    return res;
+  },
+  async uploadChunks(url, action, data, opts) {
+    const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(data)))).replace(/\+/g, '-').replace(/\//g, '_');
+    const id = 'up-' + Util.uuid(), size = 4000, n = Math.ceil(b64.length / size);
+    for (let i = 0; i < n; i++) {
+      const r = await this.viaJsonp(url, { action: 'putChunk', token: Admin.token, uploadId: id, i, d: b64.slice(i * size, (i + 1) * size) }, 30000);
+      if (!r || r.success === false) throw new ApiError((r && r.code) || 'UPLOAD', (r && r.message) || 'تعذر رفع البيانات');
+      if (opts.onProgress) opts.onProgress(i + 1, n);
+    }
+    return { action, token: Admin.token, uploadId: id, uploadParts: n };
+  },
+  async viaFetch(url, payload, timeout) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), timeout);
+    try {
+      const resp = READ_ACTIONS.has(payload.action)
+        ? await fetch(`${url}${url.includes('?') ? '&' : '?'}${this.qs(payload)}`, { method: 'GET', redirect: 'follow', signal: ctrl.signal, cache: 'no-store' })
+        : await fetch(url, { method: 'POST', redirect: 'follow', signal: ctrl.signal, headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+      return JSON.parse(await resp.text());
+    } finally { clearTimeout(timer); }
+  },
+  viaJsonp(url, payload, timeout) {
+    return new Promise((resolve, reject) => {
+      const cb = `__att_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+      const script = document.createElement('script');
+      let settled = false;
+      const finish = () => { settled = true; clearTimeout(timer); script.remove(); window[cb] = () => { }; setTimeout(() => { try { delete window[cb]; } catch (e) { } }, 60000); };
+      window[cb] = data => { if (settled) return; finish(); resolve(data); };
+      const timer = setTimeout(() => { if (settled) return; finish(); reject(new ApiError('TIMEOUT', 'انتهت مهلة الاتصال بالخادم، تحققي من الإنترنت')); }, timeout);
+      script.onerror = () => { if (settled) return; finish(); reject(new ApiError('NETWORK', 'تعذر الوصول إلى الخادم. تحققي من الإنترنت أو من رابط النظام')); };
+      script.src = `${url}${url.includes('?') ? '&' : '?'}${this.qs({ ...payload, callback: cb, _: Date.now() })}`;
+      document.head.appendChild(script);
+    });
+  }
+};
+
+/* ============================ الساعة (توقيت الرياض من الخادم) ============================ */
+const Clock = {
+  offset: 0,
+  sync(epoch) { if (epoch) this.offset = Number(epoch) - Date.now(); },
+  now() { return new Date(Date.now() + this.offset); },
+  parts() {
+    const f = new Intl.DateTimeFormat('en-GB', { timeZone: APP.TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    const p = Object.fromEntries(f.formatToParts(this.now()).map(x => [x.type, x.value]));
+    const hh = p.hour === '24' ? '00' : p.hour;
+    return { date: `${p.year}-${p.month}-${p.day}`, time: `${hh}:${p.minute}`, seconds: p.second };
+  },
+  today() { return this.parts().date; },
+  tick() {
+    const p = this.parts();
+    const mins = Util.minutes(p.time);
+    $('#clock-time').innerHTML = `${Util.fmt12(p.time).replace(/ (ص|م)$/, '')}<span class="text-xl sm:text-2xl text-white/60 font-bold mr-1">:${p.seconds} ${mins < 720 ? 'ص' : 'م'}</span>`;
+    if (this._lastDate !== p.date) {
+      this._lastDate = p.date;
+      $('#clock-day').textContent = Util.dateLabel(p.date);
+      $('#clock-hijri').textContent = Util.hijriLabel(p.date) + ' هـ';
+    }
+  },
+  start() { this.tick(); setInterval(() => this.tick(), 1000); }
+};
+
+/* ============================ النوافذ المنبثقة ============================ */
+const Modal = {
+  stack: [],
+  open(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('hidden');
+    $('#modal-backdrop').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    this.stack.push(id);
+    const panel = el.querySelector('.modal-panel');
+    if (panel) { panel.classList.remove('pop'); void panel.offsetWidth; panel.classList.add('pop'); }
+  },
+  close(id) {
+    id = id || this.stack[this.stack.length - 1];
+    if (!id) return;
+    document.getElementById(id).classList.add('hidden');
+    this.stack = this.stack.filter(x => x !== id);
+    if (!this.stack.length) { $('#modal-backdrop').classList.add('hidden'); document.body.style.overflow = ''; }
+    if (id === 'modal-confirm' && this._resolve) { this._resolve(false); this._resolve = null; }
+  },
+  isOpen() { return this.stack.length > 0; },
+  confirm({ title, text, ok = 'تأكيد', danger = false, icon = '!', typeToConfirm = '' }) {
+    $('#confirm-title').textContent = title;
+    $('#confirm-text').textContent = text || '';
+    $('#confirm-icon').textContent = icon;
+    $('#confirm-icon').className = `w-12 h-12 mx-auto rounded-2xl grid place-items-center text-2xl ${danger ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'}`;
+    const okBtn = $('#confirm-ok');
+    okBtn.textContent = ok;
+    okBtn.className = `rounded-2xl text-white font-bold py-3 press ${danger ? 'bg-rose-600 hover:bg-rose-700' : 'bg-navy-900 hover:bg-navy-800'}`;
+    const input = $('#confirm-input');
+    input.classList.toggle('hidden', !typeToConfirm);
+    input.value = ''; input.placeholder = typeToConfirm ? `اكتبي «${typeToConfirm}» للتأكيد` : '';
+    okBtn.disabled = !!typeToConfirm; okBtn.classList.toggle('opacity-40', !!typeToConfirm);
+    input.oninput = () => { const good = input.value.trim() === typeToConfirm; okBtn.disabled = !good; okBtn.classList.toggle('opacity-40', !good); };
+    this.open('modal-confirm');
+    if (typeToConfirm) setTimeout(() => input.focus(), 80);
+    return new Promise(resolve => {
+      this._resolve = resolve;
+      okBtn.onclick = () => { this._resolve = null; this.close('modal-confirm'); resolve(true); };
+      $('#confirm-cancel').onclick = () => this.close('modal-confirm');
+    });
+  },
+  init() {
+    $$('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m || e.target === m.firstElementChild) this.close(m.id); }));
+    $$('.modal-close').forEach(b => b.addEventListener('click', () => this.close(b.closest('.modal').id)));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && this.isOpen()) this.close(); });
+  }
+};
+
+/* ============================ أزرار بحالة تحميل ============================ */
+async function withBusy(btn, fn, label = 'جارٍ التنفيذ…') {
+  if (!btn || btn.dataset.busy === '1') return;
+  const html = btn.innerHTML;
+  btn.dataset.busy = '1'; btn.disabled = true;
+  btn.innerHTML = `<span class="spinner"></span><span>${label}</span>`;
+  try { return await fn(); }
+  finally { btn.dataset.busy = ''; btn.disabled = false; btn.innerHTML = html; }
+}
+
+/* ============================ شارات العرض ============================ */
+const Badge = {
+  contract(type, size = 'sm') {
+    const bilad = type === CONTRACT.BILAD;
+    const pad = size === 'xs' ? 'px-2 py-0.5 text-[10px]' : 'px-2.5 py-0.5 text-[11px]';
+    return `<span class="inline-flex items-center gap-1 rounded-full ${pad} font-extrabold ring-1 ring-inset whitespace-nowrap ${bilad ? 'bg-gold-50 text-gold-700 ring-gold-500/30' : 'bg-navy-50 text-navy-700 ring-navy-500/20'}">${bilad ? '◆' : '●'} ${Util.esc(type || CONTRACT.OFFICIAL)}</span>`;
+  },
+  status(s, label) {
+    const map = {
+      [STATUS.ON_TIME]: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+      [STATUS.LATE]: 'bg-amber-50 text-amber-800 ring-amber-600/25',
+      [STATUS.ABSENT]: 'bg-rose-50 text-rose-700 ring-rose-600/20',
+      [STATUS.EXCUSED]: 'bg-sky-50 text-sky-700 ring-sky-600/20',
+      [STATUS.NOT_OUT]: 'bg-slate-100 text-slate-600 ring-slate-500/20',
+      [STATUS.OUT]: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+      [STATUS.EARLY]: 'bg-orange-50 text-orange-700 ring-orange-600/25',
+      [STATUS.PERMIT]: 'bg-violet-50 text-violet-700 ring-violet-600/25',
+      [REQ.PENDING]: 'bg-amber-50 text-amber-800 ring-amber-600/25',
+      [REQ.APPROVED]: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+      [REQ.REJECTED]: 'bg-rose-50 text-rose-700 ring-rose-600/20'
+    };
+    if (!s || s === STATUS.NONE) return '<span class="text-slate-300">—</span>';
+    return `<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold ring-1 ring-inset whitespace-nowrap ${map[s] || 'bg-slate-100 text-slate-600 ring-slate-500/20'}">${Util.esc(label || s)}</span>`;
+  }
+};
+
+/* ============================ لوحة الوكيلة ============================ */
+const Admin = {
+  token: null, data: null, filter: 'ALL', date: null, timer: null, settings: null, editing: null, editMode: 'auto', report: null,
+
+  init() {
+    this.token = Store.sget('adminToken', null);
+    this.filter = Store.get('adminFilter', 'ALL');
+    $('#admin-login-btn').onclick = () => this.login();
+    $('#admin-pin').addEventListener('keydown', e => { if (e.key === 'Enter') this.login(); });
+    $('#btn-logout').onclick = () => this.logout();
+    $('#btn-refresh').onclick = () => this.load();
+    $('#btn-today').onclick = () => { this.date = Clock.today(); this.load(); };
+    $('#day-prev').onclick = () => { this.date = Util.addDays(this.date, -1); this.load(); };
+    $('#day-next').onclick = () => { this.date = Util.addDays(this.date, 1); this.load(); };
+    $('#admin-date').onchange = e => { if (e.target.value) { this.date = e.target.value; this.load(); } };
+    $('#table-search').addEventListener('input', Util.debounce(() => this.renderTable(), 120));
+    $('#status-filter').onchange = () => this.renderTable();
+    $('#btn-print').onclick = () => this.printDay();
+    $('#btn-export').onclick = () => this.exportDay();
+    $('#auto-refresh').onchange = e => Store.set('autoRefresh', e.target.checked);
+    $('#auto-refresh').checked = Store.get('autoRefresh', true);
+    $$('[data-open]').forEach(b => b.onclick = () => this.openTool(b.dataset.open));
+    this.initEdit(); this.initMaint(); this.initSettings();
+    this.timer = setInterval(() => {
+      if (App.section === 'daily' && this.token && $('#auto-refresh').checked && document.visibilityState === 'visible' && !Modal.isOpen()) this.load(true);
+    }, APP.AUTO_REFRESH_MS);
+  },
+
+  enter() {
+    if (!this.date) this.date = Clock.today();
+    const authed = !!this.token;
+    $('#admin-login').classList.toggle('hidden', authed);
+    App.applySection();
+    if (authed) { this.load(!!this.data); App.enterSection(true); }
+    else setTimeout(() => $('#admin-pin').focus(), 50);
+  },
+
+  async login() {
+    const pin = Util.latin($('#admin-pin').value).trim();
+    if (!pin) { Toast.warn('أدخلي الرمز السري'); return; }
+    await withBusy($('#admin-login-btn'), async () => {
+      try {
+        const res = await Api.call('adminLogin', { pin });
+        this.token = res.token;
+        Store.sset('adminToken', res.token);
+        Store.sset('pinDefault', !!res.pinIsDefault);
+        $('#admin-pin').value = '';
+        Toast.success(res.message);
+        this.enter();
+      } catch (err) { Toast.error(err.message); }
+    }, 'جارٍ الدخول…');
+  },
+
+  async logout() {
+    try { if (this.token) await Api.call('adminLogout', {}, { admin: true }); } catch (e) { }
+    this.token = null; this.data = null;
+    Store.sdel('adminToken');
+    this.enter();
+  },
+
+  handleAuthError(err) {
+    if (err.code === 'AUTH_REQUIRED') { this.token = null; this.data = null; Store.sdel('adminToken'); this.enter(); }
+    Toast.error(err.message);
+  },
+
+  async load(silent = false) {
+    if (!this.token) return;
+    $('#refresh-ico').classList.add('animate-spin');
+    try {
+      const res = await Api.call('dashboard', { date: this.date, filter: 'ALL' }, { admin: true });
+      Clock.sync(res.serverEpoch);
+      this.data = res;
+      this.date = res.date;
+      Brand.apply(res.settings.branding);
+      this.render();
+      $('#last-updated').textContent = `آخر تحديث ${Util.fmt12(res.serverTime)}`;
+      App.setPending(res.pendingRequests || 0);
+    } catch (err) {
+      if (!silent || err.code === 'AUTH_REQUIRED') this.handleAuthError(err);
+    } finally {
+      $('#refresh-ico').classList.remove('animate-spin');
+      App.applySection();
+    }
+  },
+
+  /* ---------- الحسابات حسب الفلتر ---------- */
+  scoped() {
+    const all = this.data ? this.data.records : [];
+    if (this.filter === 'OFFICIAL') return all.filter(r => r.contractType === CONTRACT.OFFICIAL);
+    if (this.filter === 'BILAD') return all.filter(r => r.contractType === CONTRACT.BILAD);
+    return all;
+  },
+  stats() { return this.filter === 'ALL' ? this.data.stats : this.data.byContract[this.filter]; },
+  filterLabel(f = this.filter) { return { ALL: 'الكل', OFFICIAL: 'الكادر الرسمي', BILAD: 'عقود البلاد' }[f]; },
+
+  render() {
+    const d = this.data;
+    $('#admin-date').value = d.date;
+    $('#pin-warning').classList.toggle('hidden', !Store.sget('pinDefault', false));
+    $('#geo-warning').classList.toggle('hidden', !!(d.settings.geofence && d.settings.geofence.configured));
+    const banner = $('#day-banner');
+    if (!d.isWorkday) { banner.textContent = `${Util.dateLabel(d.date)} — ليس من أيام الدوام الرسمي`; banner.classList.remove('hidden'); }
+    else if (!d.isToday) { banner.textContent = `تعرضين سجل يوم ${Util.dateLabel(d.date)} (${Util.hijriLabel(d.date)} هـ)`; banner.classList.remove('hidden'); }
+    else banner.classList.add('hidden');
+    this.renderKpis(); this.renderContracts(); this.renderChips(); this.renderTable();
+  },
+
+  renderKpis() {
+    const s = this.stats(), c = this.data.counts;
+    const card = (title, value, sub, tone, icon, delay) => `
+      <div class="fade-up bg-white rounded-3xl shadow-soft p-4 relative overflow-hidden" style="animation-delay:${delay}s">
+        <div class="absolute -left-4 -top-4 w-20 h-20 rounded-full ${tone[0]} opacity-60"></div>
+        <div class="relative flex items-center justify-between"><span class="text-xs font-bold text-slate-500">${title}</span><span class="w-8 h-8 rounded-xl ${tone[0]} ${tone[1]} grid place-items-center text-sm">${icon}</span></div>
+        <div class="relative mt-2 text-3xl font-black ${tone[1]} tabular-nums">${value}</div>
+        <div class="relative mt-0.5 text-[11px] font-semibold text-slate-400 truncate">${sub}</div>
+      </div>`;
+    const rate = s.disciplineRate, circ = 2 * Math.PI * 30;
+    $('#kpis').innerHTML =
+      card('إجمالي الكادر', s.total, this.filter === 'ALL' ? `${c.OFFICIAL} رسمي • ${c.BILAD} عقود البلاد` : this.filterLabel(), ['bg-navy-50', 'text-navy-900'], '👥', 0) +
+      card('حضور في الموعد', s.onTime, `من أصل ${s.total - s.excused} مطلوب حضورهن`, ['bg-emerald-50', 'text-emerald-700'], '✓', .03) +
+      card('متأخرات', s.late, s.lateMinutes ? `مجموع ${s.lateMinutes} دقيقة تأخر` : 'لا يوجد تأخر', ['bg-amber-50', 'text-amber-600'], '⏱', .06) +
+      card(this.data.isToday ? 'غائبات / لم يحضرن' : 'غائبات', s.absent, s.excused ? `+ ${s.excused} بإجازة أو عذر` : 'لا توجد أعذار مسجلة', ['bg-rose-50', 'text-rose-600'], '✕', .09) +
+      card('منصرفات', s.checkedOut, `${s.stillIn} على رأس العمل${s.earlyOut ? ` • ${s.earlyOut} مبكر` : ''}${s.permitted ? ` • ${s.permitted} باستئذان` : ''}`, ['bg-sky-50', 'text-navy-700'], '↩', .12) +
+      `<div class="fade-up col-span-2 lg:col-span-1 bg-gradient-to-br from-navy-900 to-navy-950 text-white rounded-3xl shadow-lift p-4 flex items-center gap-3" style="animation-delay:.15s">
+        <svg viewBox="0 0 72 72" class="w-20 h-20 shrink-0 -rotate-90"><circle cx="36" cy="36" r="30" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="8"/>
+          <circle class="ring-progress" cx="36" cy="36" r="30" fill="none" stroke="${rate >= 90 ? '#34d399' : rate >= 75 ? '#d9b85c' : '#fb7185'}" stroke-width="8" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${circ * (1 - rate / 100)}"/></svg>
+        <div><div class="text-xs font-bold text-white/60">نسبة الانضباط</div><div class="text-3xl font-black tabular-nums">${rate}%</div><div class="text-[11px] text-white/60 font-semibold">الحضور العام ${s.attendanceRate}%</div></div>
+      </div>`;
+  },
+
+  renderContracts() {
+    const block = (key, title, accent) => {
+      const s = this.data.byContract[key];
+      const seg = (n, cls) => n ? `<div class="${cls} h-full" style="width:${(n / Math.max(1, s.total)) * 100}%"></div>` : '';
+      return `<div class="fade-up bg-white rounded-3xl shadow-soft p-4 sm:p-5 ring-1 ${accent.ring} ${this.filter === key ? 'ring-2' : ''}">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">${Badge.contract(key === 'BILAD' ? CONTRACT.BILAD : CONTRACT.OFFICIAL)}<span class="text-sm font-extrabold text-navy-900">${title}</span></div>
+          <span class="text-2xl font-black text-navy-900 tabular-nums">${s.total}</span>
+        </div>
+        <div class="mt-3 h-2.5 rounded-full bg-slate-100 overflow-hidden flex">${seg(s.onTime, 'bg-emerald-500')}${seg(s.late, 'bg-amber-400')}${seg(s.excused, 'bg-sky-400')}${seg(s.absent, 'bg-rose-400')}</div>
+        <div class="mt-3 grid grid-cols-4 gap-2 text-center">
+          ${[['في الموعد', s.onTime, 'text-emerald-600'], ['متأخرات', s.late, 'text-amber-600'], ['غائبات', s.absent, 'text-rose-600'], ['منصرفات', s.checkedOut, 'text-navy-700']]
+          .map(([l, v, c]) => `<div class="rounded-xl bg-slate-50 py-2"><div class="text-lg font-black ${c} tabular-nums">${v}</div><div class="text-[10px] font-bold text-slate-500">${l}</div></div>`).join('')}
+        </div>
+        <div class="mt-2 text-[11px] font-semibold text-slate-400">نسبة الانضباط ${s.disciplineRate}% • الحضور ${s.attendanceRate}%</div>
+      </div>`;
+    };
+    $('#contract-cards').innerHTML = block('OFFICIAL', 'الكادر الرسمي', { ring: 'ring-navy-200' }) + block('BILAD', 'عقود البلاد', { ring: 'ring-gold-300' });
+  },
+
+  renderChips() {
+    const c = this.data.counts;
+    $('#filter-chips').innerHTML = [['ALL', 'الكل', c.ALL], ['OFFICIAL', 'الكادر الرسمي', c.OFFICIAL], ['BILAD', 'عقود البلاد', c.BILAD]].map(([k, l, n]) => {
+      const active = this.filter === k;
+      return `<button data-filter="${k}" class="press shrink-0 rounded-xl px-3.5 py-2 text-sm font-bold flex items-center gap-2 transition ${active ? 'bg-navy-900 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+        ${l}<span class="rounded-lg px-1.5 py-0.5 text-[11px] tabular-nums ${active ? 'bg-white/15' : 'bg-white text-navy-800'}">${n}</span></button>`;
+    }).join('');
+    $$('#filter-chips [data-filter]').forEach(b => b.onclick = () => {
+      this.filter = b.dataset.filter; Store.set('adminFilter', this.filter);
+      this.renderKpis(); this.renderContracts(); this.renderChips(); this.renderTable();
+    });
+  },
+
+  visibleRows() {
+    const q = Util.normalizeAr(Util.latin($('#table-search').value));
+    const sf = $('#status-filter').value;
+    const test = {
+      all: () => true,
+      onTime: r => r.statusIn === STATUS.ON_TIME,
+      late: r => r.statusIn === STATUS.LATE,
+      absent: r => r.statusIn === STATUS.ABSENT,
+      excused: r => r.statusIn === STATUS.EXCUSED,
+      stillIn: r => r.inTime && !r.outTime,
+      out: r => !!r.outTime,
+      early: r => r.statusOut === STATUS.EARLY,
+      permit: r => r.statusOut === STATUS.PERMIT
+    }[sf] || (() => true);
+    return this.scoped().filter(r => test(r) && (!q || Util.normalizeAr(r.name).includes(q) || r.nationalId.includes(q)));
+  },
+
+  absentLabel() {
+    const d = this.data;
+    if (d.isToday && Util.minutes(d.serverTime) < Util.minutes(d.settings.workEnd)) return 'لم تحضر بعد';
+    return null;
+  },
+
+  renderTable() {
+    if (!this.data) return;
+    const rows = this.visibleRows();
+    const absentLabel = this.absentLabel();
+    const s = this.stats();
+    $('#table-summary').textContent = `عرض ${rows.length} من ${this.scoped().length} معلمة • ${this.filterLabel()} • ${Util.dateLabel(this.data.date)}`;
+    $('#table-empty').classList.toggle('hidden', rows.length > 0);
+    const inCell = r => r.inTime
+      ? `<div class="font-extrabold text-navy-900 tabular-nums">${Util.fmt12(r.inTime)}</div><div class="mt-0.5">${Badge.status(r.statusIn)}</div>`
+      : Badge.status(r.statusIn, r.statusIn === STATUS.ABSENT && absentLabel ? absentLabel : null);
+    const outCell = r => r.outTime
+      ? `<div class="font-extrabold text-navy-900 tabular-nums">${Util.fmt12(r.outTime)}</div><div class="mt-0.5">${Badge.status(r.statusOut)}</div>`
+      : (r.inTime ? Badge.status(STATUS.NOT_OUT) : '<span class="text-slate-300">—</span>');
+    const device = r => (r.deviceBound
+      ? `<button data-unbind="${r.nationalId}" title="جوال مفعّل — اضغطي لفك الربط" class="text-emerald-600 hover:text-rose-600 press">📱</button>`
+      : '<span title="الجوال غير مفعّل" class="opacity-30">📱</span>') +
+      `<button data-code="${r.nationalId}" title="${r.deviceBound ? 'إزالة الجهاز القديم وإصدار رمز لجوال جديد' : r.activationPending ? 'رمز تفعيل صادر لم يُستخدم بعد — اضغطي لإصدار رمز جديد' : 'إصدار رمز تفعيل'}" class="press rounded-lg px-1.5 py-1 ${r.activationPending ? 'bg-amber-100 ring-1 ring-amber-300' : 'hover:bg-slate-100'}">🔑</button>`;
+    const flag = r => r.securityFlag ? `<div class="mt-1 inline-flex max-w-[240px] items-start gap-1 rounded-lg bg-rose-50 ring-1 ring-rose-200 px-1.5 py-0.5 text-[10px] font-bold text-rose-700" title="${Util.esc(r.securityFlag)}">⚠ <span class="truncate">${Util.esc(r.securityFlag)}</span></div>` : '';
+    const notes = r => r.notes && r.notes !== '-' ? `<span class="text-xs text-slate-500 line-clamp-2" title="${Util.esc(r.notes)}">${Util.esc(r.notes)}</span>` : '<span class="text-slate-300">—</span>';
+
+    $('#table-body').innerHTML = rows.map((r, i) => `
+      <tr class="hover:bg-emerald-50/40 transition-colors ${r.contractType === CONTRACT.BILAD ? 'bg-gold-50/30' : ''}">
+        <td class="px-3 py-3 text-slate-400 font-bold tabular-nums">${i + 1}</td>
+        <td class="px-3 py-3"><div class="flex items-center gap-2"><span class="w-9 h-9 shrink-0 rounded-xl bg-navy-50 text-navy-700 grid place-items-center text-xs font-extrabold">${Util.esc(Util.initials(r.name))}</span>
+          <div class="min-w-0"><div class="font-bold text-navy-900 truncate max-w-[220px]">${Util.esc(r.name)}</div><div class="text-[11px] text-slate-400 tabular-nums" dir="ltr">${Util.esc(r.nationalId)}</div>${flag(r)}</div></div></td>
+        <td class="px-3 py-3">${Badge.contract(r.contractType, 'xs')}</td>
+        <td class="px-3 py-3">${inCell(r)}</td>
+        <td class="px-3 py-3 font-bold tabular-nums ${r.lateMinutes ? 'text-amber-600' : 'text-slate-300'}">${r.lateMinutes ? r.lateMinutes + ' د' : '—'}</td>
+        <td class="px-3 py-3">${outCell(r)}</td>
+        <td class="px-3 py-3 font-bold tabular-nums text-navy-800">${r.workHours !== '-' ? r.workHours : '<span class="text-slate-300">—</span>'}</td>
+        <td class="px-3 py-3 max-w-[200px]">${notes(r)}</td>
+        <td class="px-3 py-3"><div class="flex items-center justify-center gap-1.5">
+          <button data-edit="${r.nationalId}" class="rounded-lg px-2.5 py-1.5 text-xs font-bold bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 text-navy-800 press">✎ تعديل</button>${device(r)}</div></td>
+      </tr>`).join('');
+
+    $('#cards-body').innerHTML = rows.map(r => `
+      <div class="p-4 ${r.contractType === CONTRACT.BILAD ? 'bg-gold-50/30' : ''}">
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex items-center gap-2.5 min-w-0"><span class="w-10 h-10 shrink-0 rounded-xl bg-navy-50 text-navy-700 grid place-items-center text-xs font-extrabold">${Util.esc(Util.initials(r.name))}</span>
+            <div class="min-w-0"><div class="font-bold text-navy-900 text-sm truncate">${Util.esc(r.name)}</div><div class="mt-0.5">${Badge.contract(r.contractType, 'xs')}</div>${flag(r)}</div></div>
+          <div class="flex items-center gap-2 shrink-0">${device(r)}<button data-edit="${r.nationalId}" class="rounded-lg px-2.5 py-1.5 text-xs font-bold bg-slate-100 text-navy-800 press">✎</button></div>
+        </div>
+        <div class="mt-3 grid grid-cols-3 gap-2 text-center">
+          <div class="rounded-xl bg-slate-50 p-2"><div class="text-[10px] font-bold text-slate-400">الحضور</div><div class="text-sm">${inCell(r)}</div></div>
+          <div class="rounded-xl bg-slate-50 p-2"><div class="text-[10px] font-bold text-slate-400">الانصراف</div><div class="text-sm">${outCell(r)}</div></div>
+          <div class="rounded-xl bg-slate-50 p-2"><div class="text-[10px] font-bold text-slate-400">ساعات / تأخر</div><div class="text-sm font-extrabold text-navy-900 tabular-nums">${r.workHours !== '-' ? r.workHours : '—'}</div><div class="text-[11px] font-bold ${r.lateMinutes ? 'text-amber-600' : 'text-slate-300'}">${r.lateMinutes ? r.lateMinutes + ' د' : '—'}</div></div>
+        </div>
+        ${r.notes && r.notes !== '-' ? `<div class="mt-2 text-[11px] text-slate-500">${Util.esc(r.notes)}</div>` : ''}
+      </div>`).join('');
+
+    $$('[data-edit]').forEach(b => b.onclick = () => this.openEdit(b.dataset.edit));
+    $$('[data-unbind]').forEach(b => b.onclick = () => this.unbind(b.dataset.unbind));
+    $$('[data-code]').forEach(b => b.onclick = async () => {
+      const r = this.data.records.find(x => x.nationalId === b.dataset.code);
+      if (r && r.deviceBound) {
+        const ok = await Modal.confirm({ title: 'إزالة الجهاز القديم؟', text: `لدى ${r.name} جوال مفعّل. سيتوقف الجوال القديم عن التسجيل فوراً، ويصدر رمز جديد لتفعيل جوالها الجديد.`, ok: 'إزالة وإصدار رمز', danger: true, icon: '📱' });
+        if (!ok) return;
+        this.issueCodes({ id: r.nationalId, removeOldDevice: true }, b);
+      } else this.issueCodes({ id: b.dataset.code }, b);
+    });
+  },
+
+  /* ---------- رموز التفعيل ---------- */
+  async issueCodes(params, btn) {
+    await withBusy(btn, async () => {
+      try {
+        const res = await Api.call('issueActivationCodes', params, { admin: true });
+        if (!res.codes.length) { Toast.info(res.message); return; }
+        this.codes = res;
+        this.renderCodes();
+        if (Modal.stack.includes('modal-maint')) Modal.close('modal-maint');
+        Modal.open('modal-codes');
+        this.load(true);
+      } catch (err) { this.handleAuthError(err); }
+    }, '…');
+  },
+  waLink(c) {
+    let phone = Util.latin(c.phone || '').replace(/\D/g, '');
+    if (/^05\d{8}$/.test(phone)) phone = '966' + phone.slice(1);
+    else if (/^5\d{8}$/.test(phone)) phone = '966' + phone;
+    if (!/^9665\d{8}$/.test(phone)) return '';
+    const text = `مرحباً أ. ${c.name.split(' ')[0]}\nرمز تفعيل جوالك في نظام الحضور والانصراف: ${c.code}\nرابط البوابة: ${App.teacherLink()}\nصالح حتى ${c.expiresAt}\nالرمز سري — لا تشاركيه مع أحد.`;
+    return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+  },
+  renderCodes() {
+    const r = this.codes;
+    $('#codes-sub').textContent = `${r.codes.length} رمز • صالحة حتى ${r.expiresAt}`;
+    $('#codes-list').innerHTML = r.codes.map(c => {
+      const wa = this.waLink(c);
+      return `<div class="flex items-center gap-3 rounded-2xl ring-1 ring-slate-200 px-3 py-2.5 ${c.contractType === CONTRACT.BILAD ? 'bg-gold-50/40' : ''}">
+        <div class="min-w-0 flex-1"><div class="font-bold text-navy-900 text-sm truncate">${Util.esc(c.name)}</div>
+          <div class="flex items-center gap-1.5 mt-0.5">${Badge.contract(c.contractType, 'xs')}<span class="text-[10px] font-mono text-slate-400" dir="ltr">••••${Util.esc(c.nationalId.slice(-4))}</span>${c.bound ? '<span class="text-[10px] font-bold text-emerald-600">مفعّلة حالياً</span>' : ''}</div></div>
+        <div class="font-mono text-xl font-black tracking-[0.25em] text-navy-900 tabular-nums" dir="ltr">${Util.esc(c.code)}</div>
+        <button data-copy="${Util.esc(c.code)}" class="press w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 grid place-items-center" title="نسخ">⧉</button>
+        ${wa ? `<a href="${Util.esc(wa)}" target="_blank" rel="noopener" class="press w-9 h-9 rounded-xl bg-emerald-50 hover:bg-emerald-100 grid place-items-center" title="إرسال عبر واتساب">💬</a>` : ''}
+      </div>`;
+    }).join('');
+    $$('#codes-list [data-copy]').forEach(b => b.onclick = () => {
+      (navigator.clipboard ? navigator.clipboard.writeText(b.dataset.copy) : Promise.reject()).then(() => Toast.success('تم نسخ الرمز'), () => Toast.info(b.dataset.copy));
+    });
+  },
+  printCodes() {
+    const r = this.codes; if (!r) return;
+    const link = App.teacherLink();
+    const school = (this.data && this.data.settings.schoolName) || '';
+    const card = c => `<div style="border:2px dashed #94a3b8;border-radius:12px;padding:12px 14px;break-inside:avoid;font-family:Cairo,sans-serif;direction:rtl">
+      <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:13px;color:#0b1f3a">${Util.esc(c.name)}</b><span style="font-size:10px;color:#64748b">${Util.esc(c.contractType)} • ••••${Util.esc(c.nationalId.slice(-4))}</span></div>
+      <div style="margin:8px 0;text-align:center;font-size:26px;font-weight:900;letter-spacing:8px;color:#065f46;font-family:monospace">${Util.esc(c.code)}</div>
+      <div style="font-size:10px;color:#334155;line-height:1.6">1) افتحي رابط البوابة: <span dir="ltr" style="font-family:monospace">${Util.esc(link)}</span><br>2) أدخلي رقم هويتك ورمز التفعيل أعلاه ← «تفعيل الجوال»<br>صالح حتى ${Util.esc(c.expiresAt)} • الرمز سري لا تشاركيه</div></div>`;
+    const html = `<div style="font-family:Cairo,sans-serif;direction:rtl"><div style="text-align:center;margin-bottom:10px"><b style="font-size:16px;color:#0b1f3a">بطاقات تفعيل جوالات المعلمات</b><div style="font-size:11px;color:#475569">${Util.esc(school ? school + ' — ' : '')}وكيلة شؤون المعلمات: أ. فوزية عبدالله الغامدي</div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${r.codes.map(card).join('')}</div></div>`;
+    App.print(html);
+  },
+
+  async unbind(id) {
+    const r = this.data.records.find(x => x.nationalId === id);
+    const ok = await Modal.confirm({ title: 'فك ربط الجهاز؟', text: `سيتوقف جوال ${r ? r.name : 'المعلمة'} الحالي عن التسجيل فوراً، وستحتاج رمز تفعيل جديداً لتفعيل جوال آخر.`, ok: 'فك الربط', danger: true, icon: '📱' });
+    if (!ok) return;
+    try { const res = await Api.call('unbindDevice', { id }, { admin: true }); Toast.success(res.message); this.load(true); }
+    catch (err) { this.handleAuthError(err); }
+  },
+
+  /* ---------- التعديل اليدوي وتسجيل الحركات السابقة ---------- */
+  initEdit() {
+    $$('#edit-mode .mode-btn').forEach(b => b.onclick = () => this.setEditMode(b.dataset.mode));
+    ['#edit-in', '#edit-out', '#edit-hours'].forEach(s => $(s).addEventListener('input', () => this.editPreview()));
+    $('#edit-permit').onchange = () => this.editPreview();
+    $('#edit-save').onclick = () => this.saveEdit();
+    $('#edit-delete').onclick = () => this.deleteEdit();
+    $('#btn-retro').onclick = () => this.openEdit(null);
+    $('#edit-teacher').onchange = () => this.fetchEditRecord();
+    $('#edit-date').onchange = () => this.fetchEditRecord();
+  },
+  /** id = null → تسجيل حركة سابقة لأي معلمة وأي تاريخ */
+  openEdit(id) {
+    if (!this.data) return;
+    this.editRetro = !id;
+    this.editing = id ? this.data.records.find(x => x.nationalId === id) : null;
+    if (id && !this.editing) return;
+    $('#edit-title').textContent = id ? 'تعديل حركة' : 'تسجيل حركة سابقة';
+    $('#edit-teacher-wrap').classList.toggle('hidden', !!id);
+    $('#edit-teacher').innerHTML = '<option value="">اختاري المعلمة…</option>' + this.data.records.slice().sort((a, b) => a.name.localeCompare(b.name, 'ar'))
+      .map(r => `<option value="${r.nationalId}">${Util.esc(r.name)} — ${Util.esc(r.contractType)}</option>`).join('');
+    $('#edit-date').value = id ? this.data.date : Util.addDays(Clock.today(), -1);
+    $('#edit-date').max = Util.addDays(Clock.today(), 60);
+    $('#edit-sub').innerHTML = id ? `${Util.esc(this.editing.name)} • ${Badge.contract(this.editing.contractType, 'xs')}` : 'لتدارك نسيان التسجيل أو الأعذار الطارئة — تُوثَّق بملاحظة إدارية';
+    $('#edit-notes').value = '';
+    if (id) this.fillEdit(this.editing); else this.fillEdit(null);
+    Modal.open('modal-edit');
+  },
+  editId() { return this.editRetro ? $('#edit-teacher').value : (this.editing ? this.editing.nationalId : ''); },
+  fillEdit(rec) {
+    const st = this.data.settings, has = !!(rec && rec.hasRecord);
+    this.editHasRecord = has;
+    $('#edit-in').value = (rec && rec.inTime) || st.workStart;
+    $('#edit-out').value = (rec && rec.outTime) || '';
+    $('#edit-hours').value = '';
+    $('#edit-permit').checked = !!(rec && rec.statusOut === STATUS.PERMIT);
+    $('#edit-delete').classList.toggle('hidden', !has);
+    const box = $('#edit-existing');
+    if (!this.editId()) box.innerHTML = '';
+    else if (has) box.innerHTML = `<span class="text-sky-700">يوجد سجل لهذا اليوم: ${rec.inTime ? 'حضور ' + Util.fmt12(rec.inTime) : Util.esc(rec.statusIn)}${rec.outTime ? ' — انصراف ' + Util.fmt12(rec.outTime) : ''}. الحفظ سيحدّث السطر نفسه.</span>`;
+    else box.innerHTML = '<span class="text-slate-500">لا يوجد سجل لهذا اليوم — سيُنشأ سطر جديد.</span>';
+    this.setEditMode(rec && rec.statusIn === STATUS.EXCUSED ? 'excused' : (has && rec && !rec.inTime ? 'absent' : 'auto'));
+  },
+  async fetchEditRecord() {
+    const id = this.editId(), date = $('#edit-date').value;
+    if (!id || !date) { this.fillEdit(null); return; }
+    if (date === this.data.date) { this.fillEdit(this.data.records.find(x => x.nationalId === id) || null); return; }
+    $('#edit-existing').innerHTML = '<span class="text-slate-400">جارٍ قراءة سجل اليوم…</span>';
+    try {
+      const res = await Api.call('getRecord', { id, date }, { admin: true });
+      if (this.editId() === id && $('#edit-date').value === date) this.fillEdit(res.record ? Object.assign({ hasRecord: true }, res.record) : null);
+    } catch (err) { this.handleAuthError(err); }
+  },
+  setEditMode(mode) {
+    this.editMode = mode;
+    $$('#edit-mode .mode-btn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+    $('#edit-times').classList.toggle('hidden', mode !== 'auto');
+    this.editPreview();
+  },
+  editPreview() {
+    const el = $('#edit-preview'), st = this.data.settings;
+    if (this.editMode !== 'auto') { el.innerHTML = `الحالة: ${Badge.status(this.editMode === 'excused' ? STATUS.EXCUSED : STATUS.ABSENT)}`; return; }
+    const inM = Util.minutes($('#edit-in').value), outM = Util.minutes($('#edit-out').value);
+    if (!isFinite(inM)) { el.textContent = 'أدخلي وقت الحضور'; return; }
+    const start = Util.minutes(st.workStart), late = inM > start + st.graceMinutes ? inM - start : 0;
+    let html = `الحضور: ${Badge.status(late ? STATUS.LATE : STATUS.ON_TIME, late ? `متأخرة ${late} دقيقة` : null)}`;
+    if (isFinite(outM)) {
+      if (outM <= inM) html += ` <span class="text-rose-600">• وقت الانصراف قبل الحضور!</span>`;
+      else {
+        const early = outM < Util.minutes(st.workEnd);
+        const hours = $('#edit-hours').value.trim() || Util.dur(outM - inM);
+        html += ` • الانصراف: ${Badge.status(early ? ($('#edit-permit').checked ? STATUS.PERMIT : STATUS.EARLY) : STATUS.OUT)} • ساعات العمل <b class="text-navy-900">${Util.esc(hours)}</b>`;
+      }
+    }
+    el.innerHTML = html;
+  },
+  async saveEdit() {
+    const id = this.editId(), date = $('#edit-date').value, note = $('#edit-notes').value.trim();
+    if (!id) { Toast.warn('اختاري المعلمة'); return; }
+    if (!date) { Toast.warn('حددي تاريخ الحركة'); return; }
+    if (note.length < 3) { Toast.warn('اكتبي ملاحظة إدارية توثّق سبب التعديل'); $('#edit-notes').focus(); return; }
+    const hours = Util.latin($('#edit-hours').value).trim();
+    if (hours && !/^\d{1,2}:[0-5]\d$/.test(hours)) { Toast.warn('ساعات العمل بصيغة ساعات:دقائق مثل 6:30'); return; }
+    await withBusy($('#edit-save'), async () => {
+      try {
+        const res = await Api.call('manualUpdate', {
+          id, date, mode: this.editMode, inTime: $('#edit-in').value, outTime: $('#edit-out').value,
+          workHours: hours, statusOut: $('#edit-permit').checked ? 'permit' : '', notes: note
+        }, { admin: true });
+        Toast.success(res.message);
+        Modal.close('modal-edit');
+        await this.load(true);
+      } catch (err) { this.handleAuthError(err); }
+    }, 'جارٍ الحفظ…');
+  },
+  async deleteEdit() {
+    const id = this.editId(), date = $('#edit-date').value;
+    if (!id || !date) return;
+    const name = (this.data.records.find(x => x.nationalId === id) || {}).name || 'المعلمة';
+    const ok = await Modal.confirm({ title: 'حذف سجل اليوم؟', text: `سيُحذف سجل ${name} ليوم ${Util.dateLabel(date)} نهائياً.`, ok: 'حذف', danger: true, icon: '🗑' });
+    if (!ok) return;
+    try {
+      const res = await Api.call('deleteRecord', { id, date }, { admin: true });
+      Toast.success(res.message); Modal.close('modal-edit'); this.load(true);
+    } catch (err) { this.handleAuthError(err); }
+  },
+
+  /* ---------- أدوات ---------- */
+  openTool(id) {
+    if (id === 'modal-settings') this.loadSettings();
+    if (id === 'modal-maint') this.loadBackups();
+    Modal.open(id);
+  },
+
+  /* ---------- الطباعة والتصدير ---------- */
+  printHeader(title, subtitle) { return Brand.header(title, [subtitle]); },
+  printFooter() { return Brand.footer(); },
+  printDay() {
+    if (!this.data) return;
+    const rows = this.visibleRows(), s = this.stats();
+    const html = this.printHeader('كشف الحضور والانصراف اليومي', `${Util.dateLabel(this.data.date)} — ${Util.hijriLabel(this.data.date)} هـ • ${this.filterLabel()}`) +
+      `<div style="display:flex;gap:8px;margin-bottom:10px;font-size:12px;flex-wrap:wrap">
+        ${[['الإجمالي', s.total], ['في الموعد', s.onTime], ['متأخرات', s.late], ['غائبات', s.absent], ['بعذر', s.excused], ['منصرفات', s.checkedOut], ['نسبة الانضباط', s.disciplineRate + '%']]
+        .map(([l, v]) => `<div style="border:1px solid #cbd5e1;border-radius:6px;padding:4px 10px"><b>${l}:</b> ${v}</div>`).join('')}</div>
+      <table class="data"><thead><tr><th>#</th><th>اسم المعلمة</th><th>رقم الهوية</th><th>التصنيف</th><th>وقت الحضور</th><th>حالة الحضور</th><th>التأخر (د)</th><th>وقت الانصراف</th><th>حالة الانصراف</th><th>ساعات العمل</th><th>ملاحظات</th></tr></thead><tbody>
+      ${rows.map((r, i) => `<tr><td>${i + 1}</td><td>${Util.esc(r.name)}</td><td>${Util.esc(r.nationalId)}</td><td>${Util.esc(r.contractType)}</td><td>${r.inTime ? Util.fmt12(r.inTime) : '—'}</td><td>${Util.esc(r.statusIn)}</td><td>${r.lateMinutes || '—'}</td><td>${r.outTime ? Util.fmt12(r.outTime) : '—'}</td><td>${Util.esc(r.outTime ? r.statusOut : (r.inTime ? STATUS.NOT_OUT : '—'))}</td><td>${r.workHours !== '-' ? r.workHours : '—'}</td><td>${Util.esc(r.notes !== '-' ? r.notes : '')}</td></tr>`).join('')}
+      </tbody></table>` + this.printFooter();
+    App.print(html);
+  },
+  exportDay() {
+    if (!this.data) return;
+    const rows = this.visibleRows();
+    Util.csv(`الحضور_${this.data.date}_${this.filterLabel()}.csv`,
+      ['م', 'التاريخ', 'اسم المعلمة', 'رقم الهوية', 'التصنيف', 'وقت الحضور', 'حالة الحضور', 'دقائق التأخر', 'وقت الانصراف', 'حالة الانصراف', 'ساعات العمل', 'ملاحظات'],
+      rows.map((r, i) => [i + 1, this.data.date, r.name, r.nationalId, r.contractType, r.inTime || '', r.statusIn, r.lateMinutes || 0, r.outTime || '', r.outTime ? r.statusOut : (r.inTime ? STATUS.NOT_OUT : ''), r.workHours !== '-' ? r.workHours : '', r.notes !== '-' ? r.notes : '']));
+    Toast.success('تم تصدير الكشف بصيغة CSV (يفتح في Excel)');
+  },
+
+  /* ---------- الصيانة ---------- */
+  initMaint() {
+    $('#codes-unbound').onclick = () => this.issueCodes({ scope: 'unbound' }, $('#codes-unbound'));
+    $('#codes-print').onclick = () => this.printCodes();
+    $$('.maint-btn').forEach(b => b.onclick = async () => {
+      const action = b.dataset.maint;
+      const titles = { initSheets: 'تجهيز الأوراق؟', dedup: 'تنظيف ودمج السجلات؟', migrateLegacy: 'ترحيل بيانات ورقة 1؟' };
+      const ok = await Modal.confirm({ title: titles[action], text: 'تُنفذ العملية مباشرة على ملف Google Sheets. يُنصح بأخذ «نسخة كاملة في Drive» من الأسفل قبل التنظيف.', ok: 'تنفيذ' });
+      if (!ok) return;
+      const box = $('#maint-result');
+      await withBusy(b, async () => {
+        try {
+          const res = await Api.call(action, {}, { admin: true, timeout: 120000 });
+          box.className = 'mt-3 rounded-2xl px-4 py-3 text-sm font-semibold bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200';
+          box.textContent = res.message;
+          Toast.success('اكتملت العملية بنجاح');
+          this.load(true);
+        } catch (err) {
+          box.className = 'mt-3 rounded-2xl px-4 py-3 text-sm font-semibold bg-rose-50 text-rose-800 ring-1 ring-rose-200';
+          box.textContent = err.message;
+          if (err.code === 'AUTH_REQUIRED') this.handleAuthError(err);
+        }
+      }, 'جارٍ التنفيذ…');
+    });
+    /* --- النسخ الاحتياطي --- */
+    $('#bk-drive').onclick = () => withBusy($('#bk-drive'), async () => {
+      try { const res = await Api.call('backupCreate', {}, { admin: true, timeout: 120000 }); Toast.success(res.message); this.renderBackups(res.backups); }
+      catch (err) { this.handleAuthError(err); }
+    }, 'جارٍ النسخ…');
+    $('#bk-json').onclick = () => withBusy($('#bk-json'), async () => {
+      try {
+        const res = await Api.call('backupExport', {}, { admin: true, timeout: 120000 });
+        Export.download(`نسخة_احتياطية_نظام_الحضور_${Clock.today()}.json`, JSON.stringify(res.backup, null, 1), 'application/json;charset=utf-8');
+        Toast.success('تم تنزيل النسخة الاحتياطية (JSON) — احتفظي بها في مكان آمن');
+      } catch (err) { this.handleAuthError(err); }
+    }, 'جارٍ التجهيز…');
+    $('#bk-xlsx').onclick = () => withBusy($('#bk-xlsx'), async () => {
+      try {
+        const res = await Api.call('backupExport', {}, { admin: true, timeout: 120000 });
+        await Export.xlsx(`نسخة_احتياطية_نظام_الحضور_${Clock.today()}.xlsx`, Object.entries(res.backup.sheets).map(([name, sh]) => ({ name, headers: sh.headers, rows: sh.rows })));
+      } catch (err) { this.handleAuthError(err); }
+    }, 'جارٍ التجهيز…');
+    $('#bk-file').onchange = async e => {
+      const file = e.target.files[0]; e.target.value = '';
+      if (!file) return;
+      let backup;
+      try { backup = JSON.parse(await file.text()); } catch (err) { Toast.error('الملف ليس JSON صالحاً'); return; }
+      if (!backup || backup.app !== 'school-attendance' || !backup.sheets) { Toast.error('هذا الملف ليس نسخة احتياطية من نظام الحضور'); return; }
+      const n = name => ((backup.sheets[name] || {}).rows || []).length;
+      const ok = await Modal.confirm({
+        title: 'استعادة هذه النسخة؟', danger: true, icon: '♻', ok: 'استعادة', typeToConfirm: 'استعادة',
+        text: `نسخة بتاريخ ${backup.createdAt || '؟'}: ${n('المعلمات')} معلمة، ${n('سجل_الحضور')} حركة، ${n('الطلبات_والأعذار')} طلب. ستُستبدل البيانات الحالية بها بعد أخذ نسخة أمان تلقائية.`
+      });
+      if (!ok) return;
+      const prog = $('#bk-progress');
+      prog.classList.remove('hidden'); prog.textContent = 'جارٍ الاستعادة…';
+      try {
+        const res = await Api.call('backupRestore', { backup, restoreSettings: $('#bk-settings').checked ? 'true' : 'false' },
+          { admin: true, big: true, timeout: 240000, onProgress: (i, t) => { prog.textContent = `جارٍ رفع البيانات… ${Math.round(i / t * 100)}%`; } });
+        Toast.success(res.message);
+        prog.textContent = res.message;
+        this.loadBackups(); this.load(true); if (Staff.loaded) Staff.load(true);
+      } catch (err) { prog.classList.add('hidden'); this.handleAuthError(err); }
+    };
+  },
+  async loadBackups() {
+    try { const res = await Api.call('backupList', {}, { admin: true }); this.renderBackups(res.backups); } catch (err) { /* غير حرج */ }
+  },
+  renderBackups(list) {
+    $('#bk-list').innerHTML = (list || []).length
+      ? '<div class="text-[11px] font-bold text-slate-500">آخر النسخ المحفوظة في Drive:</div>' + list.slice(0, 6).map(b =>
+        `<a href="${Util.esc(b.url)}" target="_blank" rel="noopener" class="flex items-center justify-between gap-2 rounded-xl bg-slate-50 hover:bg-emerald-50 px-3 py-2 text-xs font-semibold text-navy-900"><span class="truncate">📄 ${Util.esc(b.label || 'يدوية')}</span><span class="tabular-nums text-slate-500 shrink-0" dir="ltr">${Util.esc(b.at)}</span></a>`).join('')
+      : '<div class="text-[11px] text-slate-400 font-semibold">لا توجد نسخ احتياطية سابقة</div>';
+  },
+
+  /* ---------- الإعدادات ---------- */
+  initSettings() {
+    const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    $('#s-days').innerHTML = days.map((d, i) => `<label class="cursor-pointer"><input type="checkbox" value="${i}" class="peer sr-only"><span class="block rounded-xl px-3 py-2 text-xs font-bold bg-slate-100 text-slate-500 peer-checked:bg-emerald-600 peer-checked:text-white transition">${d}</span></label>`).join('');
+    $('#s-use-loc').onclick = () => withBusy($('#s-use-loc'), async () => {
+      if (!('geolocation' in navigator)) { Toast.error('المتصفح لا يدعم تحديد الموقع'); return; }
+      await new Promise(resolve => navigator.geolocation.getCurrentPosition(p => {
+        $('#s-lat').value = p.coords.latitude.toFixed(6); $('#s-lng').value = p.coords.longitude.toFixed(6);
+        Toast.success(`تم التقاط الموقع بدقة ±${Math.round(p.coords.accuracy)} م`); resolve();
+      }, e => { Toast.error(e.code === 1 ? 'تم رفض إذن الموقع' : 'تعذر تحديد الموقع'); resolve(); }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }));
+    }, 'جارٍ التحديد…');
+    $('#s-save').onclick = () => this.saveSettings();
+    $('#s-logo-file').onchange = e => { this.uploadLogo(e.target.files[0]); e.target.value = ''; };
+    $('#s-logo-remove').onclick = () => this.removeLogo();
+    $('#s-pin-save').onclick = () => this.changePin();
+    $('#s-api-save').onclick = () => App.saveApiUrl($('#s-api').value, $('#s-api-save'));
+    $('#s-copy-link').onclick = () => {
+      const link = App.teacherLink();
+      (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(
+        () => Toast.success('تم نسخ رابط بوابة المعلمات — أرسليه في مجموعة المعلمات'),
+        () => Toast.info(link));
+    };
+  },
+  async loadSettings() {
+    $('#s-api').value = Api.url;
+    try {
+      const res = await Api.call('getSettings', {}, { admin: true });
+      const s = res.settings;
+      this.settings = s;
+      $('#s-school').value = s.schoolName || ''; $('#s-edu').value = s.eduAdmin || ''; $('#s-principal').value = s.principalName || ''; $('#s-deputy').value = s.deputyName || '';
+      $('#s-acc').value = s.maxAccuracy; $('#s-fp').checked = !!s.strictFingerprint;
+      this.renderLogoPreview();
+      $('#s-start').value = s.workStart; $('#s-end').value = s.workEnd; $('#s-open').value = s.checkInOpen; $('#s-grace').value = s.graceMinutes;
+      $('#s-lat').value = s.schoolLat ?? ''; $('#s-lng').value = s.schoolLng ?? ''; $('#s-radius').value = s.radiusMeters; $('#s-enforce').checked = !!s.enforceGeofence;
+      $$('#s-days input').forEach(cb => cb.checked = s.workDays.includes(Number(cb.value)));
+    } catch (err) { this.handleAuthError(err); }
+  },
+  async saveSettings() {
+    const settings = {
+      schoolName: $('#s-school').value, eduAdmin: $('#s-edu').value, principalName: $('#s-principal').value, deputyName: $('#s-deputy').value,
+      maxAccuracy: Number($('#s-acc').value) || 100, strictFingerprint: $('#s-fp').checked, workStart: $('#s-start').value, workEnd: $('#s-end').value, checkInOpen: $('#s-open').value,
+      graceMinutes: Number($('#s-grace').value) || 0, radiusMeters: Number($('#s-radius').value) || 150,
+      schoolLat: Util.latin($('#s-lat').value).trim(), schoolLng: Util.latin($('#s-lng').value).trim(),
+      enforceGeofence: $('#s-enforce').checked,
+      workDays: $$('#s-days input:checked').map(cb => Number(cb.value))
+    };
+    await withBusy($('#s-save'), async () => {
+      try {
+        const res = await Api.call('saveSettings', { settings: JSON.stringify(settings) }, { admin: true });
+        Toast.success(res.message); Modal.close('modal-settings'); this.load(true);
+      } catch (err) { this.handleAuthError(err); }
+    }, 'جارٍ الحفظ…');
+  },
+  renderLogoPreview() {
+    $('#s-logo-preview').innerHTML = Brand.logo ? `<img src="${Brand.logo}" alt="الشعار" class="w-full h-full object-contain p-1">` : 'لا يوجد شعار';
+    $('#s-logo-remove').classList.toggle('hidden', !Brand.logo);
+  },
+  /** تصغير الشعار في المتصفح (حتى 260 بكسل) ثم رفعه للخادم */
+  async uploadLogo(file) {
+    if (!file) return;
+    try {
+      const url = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(file); });
+      const img = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => rej(new Error('ملف الصورة غير صالح')); im.src = url; });
+      const draw = (max, type, q, bg) => {
+        const k = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        const ctx = c.getContext('2d'); if (bg) { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); }
+        ctx.drawImage(img, 0, 0, c.width, c.height);
+        return c.toDataURL(type, q);
+      };
+      let data = draw(260, 'image/png');
+      if (data.length > 80000) data = draw(260, 'image/jpeg', 0.85, true);
+      if (data.length > 80000) data = draw(180, 'image/jpeg', 0.8, true);
+      const res = await Api.call('saveLogo', { logo: data }, { admin: true, big: true, timeout: 60000 });
+      Toast.success(res.message);
+      await Brand.apply({ logoVersion: res.version });
+      this.renderLogoPreview();
+    } catch (err) { this.handleAuthError(err); }
+  },
+  async removeLogo() {
+    const ok = await Modal.confirm({ title: 'حذف الشعار؟', text: 'سيُزال الشعار من الشاشات والتقارير.', ok: 'حذف', danger: true });
+    if (!ok) return;
+    try { const res = await Api.call('saveLogo', { logo: '' }, { admin: true }); Toast.success(res.message); await Brand.apply({ logoVersion: '' }); this.renderLogoPreview(); }
+    catch (err) { this.handleAuthError(err); }
+  },
+  async changePin() {
+    const a = Util.latin($('#s-pin1').value), b = Util.latin($('#s-pin2').value);
+    if (!/^\d{4,8}$/.test(a)) { Toast.warn('الرمز يجب أن يكون من 4 إلى 8 أرقام'); return; }
+    if (a !== b) { Toast.warn('الرمزان غير متطابقين'); return; }
+    await withBusy($('#s-pin-save'), async () => {
+      try {
+        const res = await Api.call('changePin', { newPin: a }, { admin: true });
+        Toast.success(res.message); Store.sset('pinDefault', false); $('#pin-warning').classList.add('hidden');
+        $('#s-pin1').value = ''; $('#s-pin2').value = '';
+      } catch (err) { this.handleAuthError(err); }
+    }, 'جارٍ الحفظ…');
+  }
+};
+
+/* ============================ مكتبات خارجية عند الطلب ============================ */
+const Lib = {
+  _xlsx: null,
+  /** يحمّل SheetJS من cdnjs عند أول حاجة (استيراد/تصدير Excel). يعيد null إن تعذر التحميل. */
+  xlsx() {
+    if (window.XLSX) return Promise.resolve(window.XLSX);
+    if (this._xlsx) return this._xlsx;
+    this._xlsx = new Promise(resolve => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+      s.onload = () => resolve(window.XLSX || null);
+      s.onerror = () => { this._xlsx = null; resolve(null); };
+      document.head.appendChild(s);
+    });
+    return this._xlsx;
+  }
+};
+
+/* ============================ التصدير (Excel / Word / ملفات) ============================ */
+const Export = {
+  download(filename, content, type) {
+    const blob = content instanceof Blob ? content : new Blob([content], { type });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+  },
+  /** sheets: [{ name, headers, rows }] — ملف xlsx حقيقي باتجاه RTL، وإن تعذر تحميل المكتبة يُنزَّل CSV */
+  async xlsx(filename, sheets) {
+    const XLSX = await Lib.xlsx();
+    if (!XLSX) {
+      Util.csv(filename.replace(/\.xlsx$/, '') + '.csv', sheets[0].headers, sheets[0].rows);
+      Toast.warn('تعذر تحميل مكتبة Excel (تحققي من الإنترنت) — تم التصدير بصيغة CSV التي تفتح في Excel');
+      return;
+    }
+    const wb = XLSX.utils.book_new();
+    wb.Workbook = { Views: [{ RTL: true }] };
+    sheets.forEach(sh => {
+      const ws = XLSX.utils.aoa_to_sheet([sh.headers, ...sh.rows.map(r => r.map(v => (v == null ? '' : v)))]);
+      ws['!cols'] = sh.headers.map((h, i) => ({ wch: Math.min(45, Math.max(String(h).length + 2, ...sh.rows.slice(0, 200).map(r => String(r[i] == null ? '' : r[i]).length + 2))) }));
+      // أرقام الهوية كنص حتى لا تتحول إلى صيغة علمية
+      Object.keys(ws).forEach(k => { const c = ws[k]; if (c && c.t === 'n' && /^\d{10}$/.test(String(c.v))) { c.t = 's'; c.v = String(c.v); } });
+      XLSX.utils.book_append_sheet(wb, ws, sh.name.slice(0, 31));
+    });
+    XLSX.writeFile(wb, filename);
+    Toast.success('تم تصدير ملف Excel');
+  },
+  /** ملف Word (.doc) قابل للتعديل المباشر مبني على HTML */
+  word(filename, bodyHtml, landscape = true) {
+    const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8"><title>${Util.esc(filename)}</title>
+<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
+<style>
+@page WordSection1 { size: ${landscape ? '841.9pt 595.3pt; mso-page-orientation: landscape' : '595.3pt 841.9pt'}; margin: 1.5cm; }
+div.WordSection1 { page: WordSection1; }
+body { font-family: 'Arial', sans-serif; direction: rtl; }
+table.data { border-collapse: collapse; width: 100%; }
+table.data th, table.data td { border: 1px solid #94a3b8; padding: 3pt 5pt; font-size: 9.5pt; text-align: right; }
+table.data th { background: #0b1f3a; color: #ffffff; }
+table.layout td { border: none; }
+</style></head><body dir="rtl"><div class="WordSection1">${bodyHtml}</div></body></html>`;
+    this.download(filename, '﻿' + html, 'application/msword;charset=utf-8');
+    Toast.success('تم تصدير ملف Word قابل للتعديل');
+  }
+};
+
+/* ============================ هوية المدرسة ============================ */
+const Brand = {
+  data: { schoolName: '', eduAdmin: '', principalName: '', deputyName: 'أ. فوزية عبدالله الغامدي', logoVersion: '' },
+  logo: '',
+  init() {
+    this.data = Object.assign(this.data, Store.get('brand', {}));
+    this.logo = Store.get('logoData', '');
+    this.render();
+  },
+  async apply(branding) {
+    if (!branding) return;
+    Object.assign(this.data, branding);
+    Store.set('brand', this.data);
+    if ((branding.logoVersion || '') !== Store.get('logoVer', '')) {
+      try {
+        const res = branding.logoVersion ? await Api.call('getLogo') : { logo: '' };
+        this.logo = res.logo || '';
+        Store.set('logoData', this.logo); Store.set('logoVer', branding.logoVersion || '');
+      } catch (e) { /* يبقى الشعار المخزن */ }
+    }
+    this.render();
+  },
+  render() {
+    const d = this.data;
+    $('#school-line').textContent = [d.schoolName, d.eduAdmin].filter(Boolean).join(' • ') || 'لوحة تحكم وكيلة شؤون المعلمات';
+    $('#deputy-line').textContent = 'وكيلة شؤون المعلمات: ' + (d.deputyName || '');
+    const box = $('#brand-logo');
+    box.innerHTML = this.logo
+      ? `<img src="${this.logo}" alt="شعار المدرسة" class="w-full h-full object-contain rounded-xl bg-white p-1">`
+      : '<svg class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l2 2 4-4"/><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/></svg>';
+    box.classList.toggle('bg-white', !!this.logo);
+  },
+  /** ترويسة رسمية للتقارير المطبوعة والمصدّرة */
+  header(title, lines = []) {
+    const d = this.data;
+    return `<div style="font-family:Cairo,Arial,sans-serif;direction:rtl">
+      <table class="layout" style="width:100%;border:0;margin-bottom:6px"><tr>
+        <td style="border:0;width:36%;font-size:12px;line-height:1.75;font-weight:700;color:#0b1f3a;vertical-align:top">المملكة العربية السعودية<br>وزارة التعليم${d.eduAdmin ? '<br>' + Util.esc(d.eduAdmin) : ''}${d.schoolName ? '<br>' + Util.esc(d.schoolName) : ''}</td>
+        <td style="border:0;width:28%;text-align:center;vertical-align:middle">${this.logo ? `<img src="${this.logo}" style="height:72px;max-width:150px" height="72">` : ''}</td>
+        <td style="border:0;width:36%;text-align:left;font-size:11px;line-height:1.75;color:#334155;vertical-align:top">${lines.map(Util.esc).join('<br>')}${lines.length ? '<br>' : ''}تاريخ الإصدار: ${Util.esc(Util.dateLabel(Clock.today(), { day: 'numeric', month: 'long', year: 'numeric' }))} — ${Util.esc(Util.hijriLabel(Clock.today()))} هـ</td>
+      </tr></table>
+      <div style="text-align:center;font-size:17px;font-weight:800;color:#0b1f3a;border-top:3px double #065f46;border-bottom:1px solid #065f46;padding:6px 0;margin-bottom:10px">${Util.esc(title)}</div>`;
+  },
+  /** تذييل بتوقيع الوكيلة والمديرة */
+  footer() {
+    const d = this.data;
+    const block = (role, name) => `<td style="border:0;width:50%;text-align:center;font-size:12px;font-weight:700;color:#0b1f3a;line-height:2">${role}<br>${Util.esc(name || '................................')}<br>التوقيع: ................................</td>`;
+    return `<table class="layout" style="width:100%;border:0;margin-top:26px"><tr>${block('وكيلة شؤون المعلمات', d.deputyName)}${block('مديرة المدرسة', d.principalName)}</tr></table>
+      <div style="margin-top:10px;text-align:center;font-size:9px;color:#94a3b8">صادر آلياً من نظام الحضور والانصراف المدرسي الذكي</div></div>`;
+  }
+};
+
+/* ============================ إدارة الكادر ============================ */
+const Staff = {
+  list: [], counts: { total: 0, official: 0, bilad: 0 }, filter: 'ALL', selected: new Set(), editing: null, importRows: [], loaded: false,
+
+  init() {
+    $('#st-search').addEventListener('input', Util.debounce(() => this.render(), 120));
+    $('#st-add').onclick = () => this.openForm(null);
+    $('#st-import').onclick = () => this.openImport();
+    $('#st-export').onclick = () => this.exportList(true);
+    $('#st-export-csv').onclick = () => this.exportList(false);
+    $('#st-all').onchange = e => { this.visible().forEach(t => e.target.checked ? this.selected.add(t.nationalId) : this.selected.delete(t.nationalId)); this.render(); };
+    $$('[data-bulk]').forEach(b => b.onclick = () => this.bulkDelete(b.dataset.bulk));
+    $$('[data-set-contract]').forEach(b => b.onclick = () => this.setContract([...this.selected], b.dataset.setContract));
+    $('#tm-id').addEventListener('input', e => { e.target.value = Util.latin(e.target.value).replace(/\D/g, '').slice(0, 10); });
+    $('#tm-save').onclick = () => this.saveForm();
+    $('#im-file').onchange = e => this.readImport(e.target.files[0]);
+    $('#im-template').onclick = () => Export.xlsx('قالب_استيراد_المعلمات.xlsx', [{ name: 'المعلمات', headers: this.HEADERS, rows: [['1012345678', 'الاسم الرباعي للمعلمة', 'رسمي', 'معلمة', '0550000000']] }]);
+    $('#im-go').onclick = () => this.doImport();
+  },
+  HEADERS: ['رقم الهوية', 'اسم المعلمة', 'نوع العقد / التصنيف', 'المسمى الوظيفي', 'رقم الجوال'],
+
+  async load(silent = false) {
+    if (!Admin.token) return;
+    try {
+      const res = await Api.call('listTeachers', {}, { admin: true });
+      this.list = res.teachers; this.counts = res.counts; this.loaded = true;
+      [...this.selected].forEach(id => { if (!this.list.some(t => t.nationalId === id)) this.selected.delete(id); });
+      this.render();
+      Reports.renderTeachers();
+    } catch (err) { if (!silent || err.code === 'AUTH_REQUIRED') Admin.handleAuthError(err); }
+  },
+
+  visible() {
+    const q = Util.normalizeAr(Util.latin($('#st-search').value));
+    return this.list.filter(t => (this.filter === 'ALL' || (this.filter === 'BILAD') === (t.contractType === CONTRACT.BILAD))
+      && (!q || Util.normalizeAr(t.name).includes(q) || t.nationalId.includes(q) || (t.phone || '').includes(q)));
+  },
+
+  render() {
+    const c = this.counts;
+    $('#st-chips').innerHTML = [['ALL', 'الكل', c.total], ['OFFICIAL', 'الكادر الرسمي', c.official], ['BILAD', 'عقود البلاد', c.bilad]].map(([k, l, n]) => {
+      const a = this.filter === k;
+      return `<button data-st-filter="${k}" class="press shrink-0 rounded-xl px-3.5 py-2 text-sm font-bold flex items-center gap-2 ${a ? 'bg-navy-900 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">${l}<span class="rounded-lg px-1.5 py-0.5 text-[11px] tabular-nums ${a ? 'bg-white/15' : 'bg-white text-navy-800'}">${n}</span></button>`;
+    }).join('');
+    $$('#st-chips [data-st-filter]').forEach(b => b.onclick = () => { this.filter = b.dataset.stFilter; this.render(); });
+
+    const rows = this.visible();
+    $('#st-empty').classList.toggle('hidden', rows.length > 0);
+    $('#st-selcount').textContent = this.selected.size;
+    $('[data-bulk="SELECTED"]').disabled = !this.selected.size;
+    $$('[data-set-contract]').forEach(b => b.disabled = !this.selected.size);
+    $('#st-all').checked = rows.length > 0 && rows.every(t => this.selected.has(t.nationalId));
+    const device = t => t.deviceBound ? '<span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20 px-2 py-0.5 text-[11px] font-bold">📱 مرتبط</span>'
+      : t.activationPending ? '<span class="inline-flex rounded-full bg-amber-50 text-amber-800 ring-1 ring-amber-600/25 px-2 py-0.5 text-[11px] font-bold">🔑 رمز صادر</span>'
+      : '<span class="inline-flex rounded-full bg-slate-100 text-slate-500 px-2 py-0.5 text-[11px] font-bold">غير مفعّل</span>';
+    const actions = t => `<button data-st-edit="${t.nationalId}" class="rounded-lg px-2.5 py-1.5 text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 press whitespace-nowrap" title="تعديل البيانات والتصنيف">✎ تعديل</button>
+      <button data-st-code="${t.nationalId}" class="rounded-lg px-2 py-1.5 text-xs hover:bg-slate-100 press" title="${t.deviceBound ? 'فك الارتباط وإصدار رمز لجهاز جديد' : 'إصدار رمز تفعيل'}">🔑</button>
+      ${t.deviceBound ? `<button data-st-unbind="${t.nationalId}" class="rounded-lg px-2 py-1.5 text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-800 press" title="فك ارتباط الجهاز">فك الارتباط</button>` : ''}
+      <button data-st-del="${t.nationalId}" class="rounded-lg px-2 py-1.5 text-xs hover:bg-rose-50 text-rose-600 press" title="حذف">🗑</button>`;
+    $('#st-body').innerHTML = rows.map(t => `<tr class="hover:bg-emerald-50/40 ${t.contractType === CONTRACT.BILAD ? 'bg-gold-50/30' : ''}">
+      <td class="px-3 py-2.5 text-center"><input type="checkbox" data-st-sel="${t.nationalId}" ${this.selected.has(t.nationalId) ? 'checked' : ''} class="w-4 h-4 accent-emerald-600"></td>
+      <td class="px-3 py-2.5 font-bold text-navy-900">${Util.esc(t.name)}</td>
+      <td class="px-3 py-2.5 tabular-nums text-slate-600" dir="ltr">${Util.esc(t.nationalId)}</td>
+      <td class="px-3 py-2.5"><button data-st-toggle="${t.nationalId}" class="press" title="اضغطي لتحويل التصنيف">${Badge.contract(t.contractType, 'xs')}</button></td>
+      <td class="px-3 py-2.5 text-slate-600">${Util.esc(t.jobTitle)}</td>
+      <td class="px-3 py-2.5 tabular-nums text-slate-600" dir="ltr">${Util.esc(t.phone || '—')}</td>
+      <td class="px-3 py-2.5">${device(t)}</td>
+      <td class="px-3 py-2.5"><div class="flex items-center justify-center gap-1">${actions(t)}</div></td></tr>`).join('');
+    $('#st-cards').innerHTML = rows.map(t => `<div class="p-4 ${t.contractType === CONTRACT.BILAD ? 'bg-gold-50/30' : ''}">
+      <div class="flex items-start gap-3"><input type="checkbox" data-st-sel="${t.nationalId}" ${this.selected.has(t.nationalId) ? 'checked' : ''} class="mt-1 w-4 h-4 accent-emerald-600">
+        <div class="min-w-0 flex-1"><div class="font-bold text-navy-900 text-sm">${Util.esc(t.name)}</div>
+          <div class="mt-1 flex flex-wrap items-center gap-1.5">${Badge.contract(t.contractType, 'xs')}${device(t)}<span class="text-[11px] tabular-nums text-slate-400" dir="ltr">${Util.esc(t.nationalId)}</span></div></div></div>
+      <div class="mt-2 flex items-center justify-end gap-1">${actions(t)}</div></div>`).join('');
+
+    $$('[data-st-sel]').forEach(cb => cb.onchange = () => { cb.checked ? this.selected.add(cb.dataset.stSel) : this.selected.delete(cb.dataset.stSel); this.render(); });
+    $$('[data-st-edit]').forEach(b => b.onclick = () => this.openForm(b.dataset.stEdit));
+    $$('[data-st-toggle]').forEach(b => b.onclick = () => {
+      const t = this.list.find(x => x.nationalId === b.dataset.stToggle);
+      this.setContract([t.nationalId], t.contractType === CONTRACT.BILAD ? CONTRACT.OFFICIAL : CONTRACT.BILAD, t.name);
+    });
+    $$('[data-st-del]').forEach(b => b.onclick = () => this.deleteOne(b.dataset.stDel));
+    $$('[data-st-unbind]').forEach(b => b.onclick = () => this.unbind(b.dataset.stUnbind));
+    $$('[data-st-code]').forEach(b => b.onclick = async () => {
+      const t = this.list.find(x => x.nationalId === b.dataset.stCode);
+      if (t.deviceBound) {
+        const ok = await Modal.confirm({ title: 'فك ارتباط الجهاز القديم؟', text: `لدى ${t.name} جوال مرتبط. سيتوقف عن التسجيل فوراً ويصدر رمز لتفعيل جوالها الجديد.`, ok: 'فك الارتباط وإصدار رمز', danger: true, icon: '📱' });
+        if (!ok) return;
+        await Admin.issueCodes({ id: t.nationalId, removeOldDevice: true }, b);
+      } else await Admin.issueCodes({ id: t.nationalId }, b);
+      this.load(true);
+    });
+  },
+
+  async unbind(id) {
+    const t = this.list.find(x => x.nationalId === id);
+    const ok = await Modal.confirm({ title: 'فك ارتباط الجهاز؟', text: `سيتوقف جوال ${t.name} الحالي عن التسجيل فوراً، وتحتاج رمز تفعيل جديداً لتفعيل جوال آخر.`, ok: 'فك الارتباط', danger: true, icon: '📱' });
+    if (!ok) return;
+    try { const res = await Api.call('unbindDevice', { id }, { admin: true }); Toast.success(res.message); this.load(true); Admin.load(true); }
+    catch (err) { Admin.handleAuthError(err); }
+  },
+
+  openForm(id) {
+    const t = id ? this.list.find(x => x.nationalId === id) : null;
+    this.editing = t;
+    $('#tm-title').textContent = t ? 'تعديل بيانات معلمة' : 'إضافة معلمة';
+    $('#tm-id').value = t ? t.nationalId : '';
+    $('#tm-id-hint').classList.toggle('hidden', !t);
+    $('#tm-name').value = t ? t.name : ''; $('#tm-contract').value = t ? t.contractType : CONTRACT.OFFICIAL;
+    $('#tm-job').value = t ? t.jobTitle : ''; $('#tm-phone').value = t ? t.phone : '';
+    Modal.open('modal-teacher');
+    setTimeout(() => (t ? $('#tm-name') : $('#tm-id')).focus(), 80);
+  },
+  async saveForm() {
+    const id = $('#tm-id').value, name = $('#tm-name').value.trim();
+    if (!/^[12]\d{9}$/.test(id)) { Toast.warn('رقم الهوية يجب أن يكون 10 أرقام ويبدأ بـ 1 أو 2'); return; }
+    if (name.length < 5) { Toast.warn('أدخلي اسم المعلمة كاملاً'); return; }
+    const originalId = this.editing ? this.editing.nationalId : '';
+    if (id !== originalId && this.list.some(t => t.nationalId === id)) { Toast.warn('رقم الهوية مسجل لمعلمة أخرى'); return; }
+    if (originalId && id !== originalId) {
+      const ok = await Modal.confirm({ title: 'تغيير رقم الهوية؟', text: `سيتغير رقم هوية ${name} من ${originalId} إلى ${id} في الكادر وفي كل سجلاتها السابقة.`, ok: 'تغيير' });
+      if (!ok) return;
+    }
+    await withBusy($('#tm-save'), async () => {
+      try {
+        const res = await Api.call('upsertTeacher', { id, originalId, name, contractType: $('#tm-contract').value, jobTitle: $('#tm-job').value, phone: Util.latin($('#tm-phone').value) }, { admin: true });
+        Toast.success(res.message); Modal.close('modal-teacher');
+        await this.load(true); Admin.load(true);
+      } catch (err) { Admin.handleAuthError(err); }
+    }, 'جارٍ الحفظ…');
+  },
+  /** تحويل تصنيف معلمة أو مجموعة محددة (رسمي ⇄ عقود البلاد) */
+  async setContract(ids, contractType, name) {
+    if (!ids.length) return;
+    const ok = await Modal.confirm({ title: 'تغيير التصنيف؟', text: name ? `تحويل ${name} إلى «${contractType}»؟` : `تحويل ${ids.length} معلمة محددة إلى «${contractType}»؟`, ok: 'تحويل' });
+    if (!ok) return;
+    try {
+      const res = await Api.call('setContract', { ids: ids.join(','), contractType }, { admin: true });
+      Toast.success(res.message); await this.load(true); Admin.load(true);
+    } catch (err) { Admin.handleAuthError(err); }
+  },
+  async deleteOne(id) {
+    const t = this.list.find(x => x.nationalId === id);
+    const ok = await Modal.confirm({ title: 'حذف المعلمة؟', text: `ستُحذف ${t.name} من الكادر. سجلات حضورها السابقة تبقى محفوظة.`, ok: 'حذف', danger: true, icon: '🗑' });
+    if (!ok) return;
+    try { const res = await Api.call('deleteTeachers', { ids: id }, { admin: true }); Toast.success(res.message); this.selected.delete(id); await this.load(true); Admin.load(true); }
+    catch (err) { Admin.handleAuthError(err); }
+  },
+  async bulkDelete(scope) {
+    const c = this.counts;
+    const info = {
+      SELECTED: [`حذف ${this.selected.size} معلمة محددة؟`, this.selected.size],
+      BILAD: ['حذف مجموعة عقود البلاد كاملة؟', c.bilad], OFFICIAL: ['حذف مجموعة الكادر الرسمي كاملة؟', c.official], ALL: ['حذف جميع المعلمات؟', c.total]
+    }[scope];
+    if (!info[1]) { Toast.info('لا توجد معلمات في هذه المجموعة'); return; }
+    const ok = await Modal.confirm({ title: info[0], text: `سيُحذف ${info[1]} من الكادر بعد أخذ نسخة احتياطية تلقائية. سجلات الحضور السابقة لا تُحذف.`, ok: 'حذف نهائي', danger: true, icon: '🗑', typeToConfirm: 'حذف' });
+    if (!ok) return;
+    try {
+      const params = scope === 'SELECTED' ? { ids: [...this.selected].join(',') } : { scope };
+      const res = await Api.call('deleteTeachers', params, { admin: true, timeout: 90000 });
+      Toast.success(res.message); this.selected.clear(); await this.load(true); Admin.load(true);
+    } catch (err) { Admin.handleAuthError(err); }
+  },
+
+  exportList(asXlsx) {
+    const rows = this.visible().map(t => [t.nationalId, t.name, t.contractType, t.jobTitle, t.phone || '']);
+    if (!rows.length) { Toast.warn('لا توجد بيانات للتصدير'); return; }
+    const name = `قائمة_المعلمات_${Clock.today()}`;
+    if (asXlsx) Export.xlsx(name + '.xlsx', [{ name: 'المعلمات', headers: this.HEADERS, rows }]);
+    else { Util.csv(name + '.csv', this.HEADERS, rows); Toast.success('تم تصدير القائمة بصيغة CSV'); }
+  },
+
+  /* ---------- الاستيراد ---------- */
+  openImport() {
+    this.importRows = [];
+    $('#im-file').value = ''; $('#im-name').textContent = ''; $('#im-summary').textContent = ''; $('#im-preview').innerHTML = ''; $('#im-go').disabled = true;
+    Modal.open('modal-import');
+  },
+  parseCsv(text) {
+    text = text.replace(/^﻿/, '');
+    const first = text.split(/\r?\n/)[0] || '';
+    const delim = [',', ';', '\t'].sort((a, b) => first.split(b).length - first.split(a).length)[0];
+    const rows = []; let row = [], cell = '', q = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (q) { if (ch === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += ch; }
+      else if (ch === '"') q = true;
+      else if (ch === delim) { row.push(cell); cell = ''; }
+      else if (ch === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; }
+      else if (ch !== '\r') cell += ch;
+    }
+    if (cell || row.length) { row.push(cell); rows.push(row); }
+    return rows;
+  },
+  async readImport(file) {
+    if (!file) return;
+    $('#im-name').textContent = file.name;
+    let matrix = [];
+    try {
+      if (/\.csv$/i.test(file.name) || file.type === 'text/csv') matrix = this.parseCsv(await file.text());
+      else {
+        const XLSX = await Lib.xlsx();
+        if (!XLSX) { Toast.error('تعذر تحميل مكتبة قراءة Excel. احفظي الملف بصيغة CSV وأعيدي المحاولة'); return; }
+        const wb = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+        matrix = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: false, defval: '' });
+      }
+    } catch (e) { Toast.error('تعذر قراءة الملف: ' + e.message); return; }
+    matrix = matrix.map(r => r.map(c => String(c == null ? '' : c).replace(/^="?|"$/g, '').trim())).filter(r => r.join('') !== '');
+    if (!matrix.length) { Toast.warn('الملف فارغ'); return; }
+    // مطابقة الأعمدة بالعناوين إن وُجدت، وإلا بالترتيب
+    let map = { id: 0, name: 1, contract: 2, job: 3, phone: 4 }, start = 0;
+    const head = matrix[0].map(Util.normalizeAr);
+    const find = keys => head.findIndex(h => keys.some(k => h.includes(k)));
+    if (find(['هويه', 'سجل', 'id']) !== -1 || find(['اسم', 'name']) !== -1) {
+      start = 1;
+      map = { id: find(['هويه', 'سجل', 'id']), name: find(['اسم', 'name']), contract: find(['عقد', 'تصنيف', 'contract']), job: find(['مسمي', 'وظيف', 'job']), phone: find(['جوال', 'هاتف', 'phone']) };
+    }
+    const seen = new Set();
+    this.importRows = matrix.slice(start).map(r => {
+      const id = Util.latin(r[map.id] || '').replace(/\D/g, ''), name = (r[map.name] || '').replace(/\s+/g, ' ').trim();
+      const contract = /عقود|بلاد/.test(map.contract >= 0 ? r[map.contract] || '' : '') ? CONTRACT.BILAD : CONTRACT.OFFICIAL;
+      let error = '';
+      if (!/^[12]\d{9}$/.test(id)) error = 'رقم هوية غير صالح';
+      else if (name.length < 5) error = 'الاسم ناقص';
+      else if (seen.has(id)) error = 'مكرر في الملف';
+      seen.add(id);
+      return { id, name, contract, job: map.job >= 0 ? r[map.job] || '' : '', phone: Util.latin(map.phone >= 0 ? r[map.phone] || '' : '').replace(/\D/g, ''), error, exists: this.list.some(t => t.nationalId === id) };
+    });
+    const valid = this.importRows.filter(r => !r.error);
+    $('#im-summary').innerHTML = `<span class="text-emerald-700">${valid.length} صف صالح</span> (${valid.filter(r => !r.exists).length} جديدة • ${valid.filter(r => r.exists).length} تحديث)` +
+      (this.importRows.length - valid.length ? ` • <span class="text-rose-600">${this.importRows.length - valid.length} مرفوض</span>` : '');
+    $('#im-preview').innerHTML = `<table class="w-full text-xs"><thead class="bg-navy-900 text-white sticky top-0"><tr>${['#', 'رقم الهوية', 'الاسم', 'التصنيف', 'المسمى', 'الجوال', 'الحالة'].map(h => `<th class="px-2 py-2 text-right">${h}</th>`).join('')}</tr></thead><tbody class="divide-y divide-slate-100">
+      ${this.importRows.slice(0, 300).map((r, i) => `<tr class="${r.error ? 'bg-rose-50' : ''}"><td class="px-2 py-1.5">${i + 1}</td><td class="px-2 py-1.5 tabular-nums" dir="ltr">${Util.esc(r.id)}</td><td class="px-2 py-1.5 font-bold">${Util.esc(r.name)}</td><td class="px-2 py-1.5">${Badge.contract(r.contract, 'xs')}</td><td class="px-2 py-1.5">${Util.esc(r.job)}</td><td class="px-2 py-1.5 tabular-nums" dir="ltr">${Util.esc(r.phone)}</td>
+        <td class="px-2 py-1.5 font-bold ${r.error ? 'text-rose-600' : r.exists ? 'text-sky-700' : 'text-emerald-700'}">${r.error || (r.exists ? 'تحديث' : 'جديدة')}</td></tr>`).join('')}</tbody></table>`;
+    $('#im-go').disabled = !valid.length;
+  },
+  async doImport() {
+    const rows = this.importRows.filter(r => !r.error).map(r => ({ id: r.id, name: r.name, contract: r.contract, jobTitle: r.job, phone: r.phone }));
+    const mode = $('input[name="im-mode"]:checked').value;
+    if (mode === 'replace') {
+      const ok = await Modal.confirm({ title: 'استبدال الكادر كاملاً؟', text: `سيصبح الكادر ${rows.length} معلمة فقط وتُحذف من ليست في الملف (مع نسخة احتياطية تلقائية).`, ok: 'استبدال', danger: true, typeToConfirm: 'استبدال' });
+      if (!ok) return;
+    }
+    await withBusy($('#im-go'), async () => {
+      try {
+        const res = await Api.call('importTeachers', { rows, mode }, { admin: true, big: true, timeout: 120000 });
+        Toast.success(res.message); Modal.close('modal-import');
+        await this.load(true); Admin.load(true);
+      } catch (err) { Admin.handleAuthError(err); }
+    }, 'جارٍ الاستيراد…');
+  }
+};
+
+/* ============================ محرك التقارير ============================ */
+const Reports = {
+  preset: 'month', ids: new Set(), data: null, tab: 'details',
+  KINDS: { all: 'كافة الحركات', absent: 'الغياب', late: 'التأخير', early: 'الانصراف المبكر', ontime: 'الحضور الملتزم', excused: 'الإجازات والأعذار', permit: 'الاستئذان' },
+  PRESETS: [['today', 'اليوم'], ['week', 'هذا الأسبوع'], ['month', 'هذا الشهر'], ['pickWeek', 'أسبوع محدد'], ['pickMonth', 'شهر محدد'], ['custom', 'نطاق مخصص']],
+
+  init() {
+    $('#rp-presets').innerHTML = this.PRESETS.map(([k, l]) => `<button data-rp-preset="${k}" class="press rounded-xl px-3.5 py-2 text-sm font-bold"></button>`).join('');
+    $$('#rp-presets [data-rp-preset]').forEach((b, i) => { b.textContent = this.PRESETS[i][1]; b.onclick = () => { this.preset = b.dataset.rpPreset; this.syncRange(); }; });
+    ['#rp-week', '#rp-month', '#rp-from', '#rp-to'].forEach(s => $(s).addEventListener('change', () => this.syncRange()));
+    $('#rp-run').onclick = () => this.run();
+    $('#rp-pdf').onclick = () => App.print(this.docHtml());
+    $('#rp-word').onclick = () => Export.word(this.fileName() + '.doc', this.docHtml());
+    $('#rp-xlsx').onclick = () => this.exportXlsx();
+    $('#rp-teachers-btn').onclick = e => { e.stopPropagation(); $('#rp-teachers-pop').classList.toggle('hidden'); if (!Staff.loaded) Staff.load(true); };
+    $('#rp-teachers-pop').addEventListener('click', e => e.stopPropagation());
+    document.addEventListener('click', () => $('#rp-teachers-pop').classList.add('hidden'));
+    $('#rp-teachers-search').addEventListener('input', () => this.renderTeachers());
+    $('#rp-filter').onchange = () => {            // عند تغيير التصنيف تُلغى المحددات التي لم تعد ضمنه
+      const pool = new Set(this.teacherPool().map(t => t.nationalId));
+      [...this.ids].forEach(id => { if (!pool.has(id)) this.ids.delete(id); });
+      this.renderTeachers();
+    };
+    $('#rp-t-all').onclick = () => { this.teacherPool().forEach(t => this.ids.add(t.nationalId)); this.renderTeachers(); };
+    $('#rp-t-none').onclick = () => { this.ids.clear(); this.renderTeachers(); };
+  },
+  enter() {
+    const t = Clock.today();
+    if (!$('#rp-week').value) { $('#rp-week').value = t; $('#rp-month').value = t.slice(0, 7); $('#rp-from').value = t.slice(0, 8) + '01'; $('#rp-to').value = t; }
+    this.syncRange();
+    if (!Staff.loaded) Staff.load(true); else this.renderTeachers();
+  },
+  weekOf(d) {
+    const [y, m, dd] = d.split('-').map(Number);
+    const dow = new Date(Date.UTC(y, m - 1, dd, 12)).getUTCDay();      // الأسبوع يبدأ الأحد
+    const start = Util.addDays(d, -dow);
+    return [start, Util.addDays(start, 6)];
+  },
+  monthOf(ym) {
+    const [y, m] = ym.split('-').map(Number);
+    const last = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    return [`${ym}-01`, `${ym}-${Util.pad(last)}`];
+  },
+  range() {
+    const t = Clock.today();
+    switch (this.preset) {
+      case 'today': return [t, t];
+      case 'week': return this.weekOf(t);
+      case 'pickWeek': return this.weekOf($('#rp-week').value || t);
+      case 'pickMonth': return this.monthOf($('#rp-month').value || t.slice(0, 7));
+      case 'custom': return [$('#rp-from').value || t, $('#rp-to').value || t];
+      default: return this.monthOf(t.slice(0, 7));
+    }
+  },
+  syncRange() {
+    $$('#rp-presets [data-rp-preset]').forEach(b => {
+      const a = b.dataset.rpPreset === this.preset;
+      b.className = `press rounded-xl px-3.5 py-2 text-sm font-bold ${a ? 'bg-emerald-600 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`;
+    });
+    $('#rp-week-wrap').classList.toggle('hidden', this.preset !== 'pickWeek');
+    $('#rp-month-wrap').classList.toggle('hidden', this.preset !== 'pickMonth');
+    $$('.rp-custom').forEach(el => el.classList.toggle('hidden', this.preset !== 'custom'));
+    const [from, to] = this.range();
+    $('#rp-range').textContent = from === to ? Util.dateLabel(from) : `${Util.dateLabel(from, { day: 'numeric', month: 'long' })} ← ${Util.dateLabel(to, { day: 'numeric', month: 'long', year: 'numeric' })}`;
+  },
+  teacherPool() {
+    const f = $('#rp-filter').value;
+    return Staff.list.filter(t => f === 'ALL' || (f === 'BILAD') === (t.contractType === CONTRACT.BILAD));
+  },
+  renderTeachers() {
+    const q = Util.normalizeAr($('#rp-teachers-search').value);
+    const pool = this.teacherPool();
+    $('#rp-teachers-list').innerHTML = pool.filter(t => !q || Util.normalizeAr(t.name).includes(q)).map(t =>
+      `<label class="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-50 cursor-pointer"><input type="checkbox" value="${t.nationalId}" ${this.ids.has(t.nationalId) ? 'checked' : ''} class="w-4 h-4 accent-emerald-600"><span class="text-sm font-semibold text-navy-900 truncate">${Util.esc(t.name)}</span></label>`).join('')
+      || '<div class="p-4 text-center text-xs text-slate-400">لا توجد معلمات</div>';
+    $$('#rp-teachers-list input').forEach(cb => cb.onchange = () => { cb.checked ? this.ids.add(cb.value) : this.ids.delete(cb.value); this.label(); });
+    this.label();
+  },
+  label() {
+    const n = this.ids.size;
+    const one = n === 1 ? Staff.list.find(t => this.ids.has(t.nationalId)) : null;
+    $('#rp-teachers-label').textContent = !n ? `كل المعلمات (${this.teacherPool().length})` : one ? one.name : `${n} معلمات محددات`;
+  },
+
+  async run() {
+    const [from, to] = this.range();
+    if (from > to) { Toast.warn('تاريخ البداية بعد تاريخ النهاية'); return; }
+    await withBusy($('#rp-run'), async () => {
+      try {
+        const res = await Api.call('report', { from, to, filter: $('#rp-filter').value, kind: $('#rp-kind').value, ids: [...this.ids].join(',') }, { admin: true, timeout: 60000 });
+        this.data = res;
+        ['#rp-pdf', '#rp-xlsx', '#rp-word'].forEach(s => $(s).disabled = false);
+        this.render();
+      } catch (err) { Admin.handleAuthError(err); }
+    }, 'جارٍ إعداد التقرير…');
+  },
+
+  title() { const k = this.data.kind; return k === 'all' ? 'تقرير الحضور والانصراف الشامل' : `تقرير ${this.KINDS[k]}`; },
+  scopeLabel() {
+    const r = this.data;
+    const who = r.rows.length === 1 ? r.rows[0].name : this.ids.size ? `${r.rows.length} معلمات محددات` : { ALL: 'جميع المعلمات', OFFICIAL: 'الكادر الرسمي', BILAD: 'عقود البلاد' }[r.filter];
+    return who;
+  },
+  rangeLabel() { const r = this.data; return r.from === r.to ? Util.dateLabel(r.from) : `من ${Util.dateLabel(r.from, { day: 'numeric', month: 'long', year: 'numeric' })} إلى ${Util.dateLabel(r.to, { day: 'numeric', month: 'long', year: 'numeric' })}`; },
+  fileName() { const r = this.data; return `${this.title().replace(/\s+/g, '_')}_${r.from}_${r.to}`; },
+
+  DETAIL_HEADERS: ['م', 'التاريخ', 'اليوم', 'اسم المعلمة', 'رقم الهوية', 'التصنيف', 'وقت الحضور', 'حالة الحضور', 'دقائق التأخر', 'وقت الانصراف', 'حالة الانصراف', 'ساعات العمل', 'ملاحظات'],
+  SUMMARY_HEADERS: ['م', 'اسم المعلمة', 'رقم الهوية', 'التصنيف', 'أيام الحضور', 'في الموعد', 'حالات التأخر', 'دقائق التأخر', 'انصراف مبكر', 'استئذان', 'بعذر', 'غياب', 'ساعات العمل', 'نسبة الانضباط %'],
+  detailRow(e, i) {
+    return [i + 1, e.date, Util.dateLabel(e.date, { weekday: 'long' }), e.name, e.nationalId, e.contractType, e.inTime ? Util.fmt12(e.inTime) : '', e.statusIn, e.lateMinutes || 0,
+      e.outTime ? Util.fmt12(e.outTime) : '', e.statusOut && e.statusOut !== '-' ? e.statusOut : '', e.workHours !== '-' ? e.workHours : '', e.notes !== '-' ? e.notes : ''];
+  },
+  summaryRow(x, i) { return [i + 1, x.name, x.nationalId, x.contractType, x.present, x.onTime, x.late, x.lateMinutes, x.earlyOut, x.permitted, x.excused, x.absent, x.workedHours, x.disciplineRate]; },
+
+  render() {
+    const r = this.data, t = r.totals;
+    const mini = (l, v, c) => `<div class="rounded-2xl bg-slate-50 p-3 text-center"><div class="text-xl font-black ${c} tabular-nums">${v}</div><div class="text-[11px] font-bold text-slate-500">${l}</div></div>`;
+    const tabBtn = (k, l, n) => `<button data-rp-tab="${k}" class="press rounded-xl px-4 py-2 text-sm font-bold ${this.tab === k ? 'bg-navy-900 text-white' : 'bg-slate-100 text-slate-600'}">${l} <span class="opacity-70 tabular-nums">(${n})</span></button>`;
+    const details = r.details.slice(0, 500);
+    $('#rp-result').innerHTML = `<div class="bg-white rounded-3xl shadow-soft p-4 sm:p-5 fade-up">
+      <div class="flex flex-wrap items-center justify-between gap-2"><div><h3 class="font-extrabold text-navy-900">${Util.esc(this.title())}</h3><p class="text-xs text-slate-500 font-semibold">${Util.esc(this.scopeLabel())} • ${Util.esc(this.rangeLabel())} • أيام الدوام: ${r.workdays}</p></div>
+        <div class="flex gap-1.5">${tabBtn('details', 'الحركات', r.details.length)}${tabBtn('summary', 'ملخص المعلمات', r.rows.length)}</div></div>
+      <div class="mt-3 grid grid-cols-3 sm:grid-cols-7 gap-2">${mini('حضور', t.present, 'text-emerald-600')}${mini('في الموعد', t.onTime, 'text-emerald-700')}${mini('تأخر', t.late, 'text-amber-600')}${mini('غياب', t.absent, 'text-rose-600')}${mini('انصراف مبكر', t.earlyOut, 'text-orange-600')}${mini('استئذان', t.permitted, 'text-violet-600')}${mini('بعذر', t.excused, 'text-sky-700')}</div>
+      <div class="mt-3 overflow-auto thin-scroll max-h-[60vh] rounded-2xl ring-1 ring-slate-200">${this.tab === 'details' ? this.detailsTable(details) : this.summaryTable()}</div>
+      ${this.tab === 'details' && r.details.length > details.length ? `<p class="mt-2 text-xs text-slate-500 font-semibold">يُعرض أول ${details.length} من ${r.details.length} حركة — التصدير والطباعة يشملان الكل.</p>` : ''}
+      ${!r.details.length && this.tab === 'details' ? '<p class="p-8 text-center text-slate-400 font-bold">لا توجد حركات مطابقة لهذه المعايير</p>' : ''}</div>`;
+    $$('#rp-result [data-rp-tab]').forEach(b => b.onclick = () => { this.tab = b.dataset.rpTab; this.render(); });
+  },
+  detailsTable(list) {
+    return `<table class="w-full text-sm"><thead class="bg-navy-900 text-white text-xs sticky top-0"><tr>${['التاريخ', 'المعلمة', 'التصنيف', 'الحضور', 'التأخر', 'الانصراف', 'الساعات', 'ملاحظات'].map(h => `<th class="px-3 py-2.5 text-right font-bold whitespace-nowrap">${h}</th>`).join('')}</tr></thead>
+      <tbody class="divide-y divide-slate-100">${list.map(e => `<tr class="hover:bg-slate-50 ${e.contractType === CONTRACT.BILAD ? 'bg-gold-50/30' : ''}">
+        <td class="px-3 py-2 whitespace-nowrap"><div class="font-bold text-navy-900 tabular-nums">${e.date}</div><div class="text-[11px] text-slate-400">${Util.dateLabel(e.date, { weekday: 'long' })}</div></td>
+        <td class="px-3 py-2 font-bold text-navy-900 whitespace-nowrap">${Util.esc(e.name)}</td><td class="px-3 py-2">${Badge.contract(e.contractType, 'xs')}</td>
+        <td class="px-3 py-2 whitespace-nowrap">${e.inTime ? `<span class="font-bold tabular-nums">${Util.fmt12(e.inTime)}</span> ` : ''}${Badge.status(e.statusIn)}</td>
+        <td class="px-3 py-2 tabular-nums ${e.lateMinutes ? 'text-amber-600 font-bold' : 'text-slate-300'}">${e.lateMinutes ? e.lateMinutes + ' د' : '—'}</td>
+        <td class="px-3 py-2 whitespace-nowrap">${e.outTime ? `<span class="font-bold tabular-nums">${Util.fmt12(e.outTime)}</span> ` : ''}${Badge.status(e.statusOut)}</td>
+        <td class="px-3 py-2 tabular-nums font-bold">${e.workHours !== '-' ? e.workHours : '<span class="text-slate-300">—</span>'}</td>
+        <td class="px-3 py-2 text-xs text-slate-500 max-w-[220px]">${e.notes !== '-' ? Util.esc(e.notes) : ''}</td></tr>`).join('')}</tbody></table>`;
+  },
+  summaryTable() {
+    return `<table class="w-full text-sm"><thead class="bg-navy-900 text-white text-xs sticky top-0"><tr>${['المعلمة', 'التصنيف', 'حضور', 'في الموعد', 'تأخر', 'دقائق التأخر', 'مبكر', 'استئذان', 'بعذر', 'غياب', 'ساعات العمل', 'الانضباط'].map(h => `<th class="px-3 py-2.5 text-right font-bold whitespace-nowrap">${h}</th>`).join('')}</tr></thead>
+      <tbody class="divide-y divide-slate-100">${this.data.rows.map(x => `<tr class="hover:bg-slate-50 ${x.contractType === CONTRACT.BILAD ? 'bg-gold-50/30' : ''}">
+        <td class="px-3 py-2 font-bold text-navy-900 whitespace-nowrap">${Util.esc(x.name)}</td><td class="px-3 py-2">${Badge.contract(x.contractType, 'xs')}</td>
+        <td class="px-3 py-2 tabular-nums">${x.present}</td><td class="px-3 py-2 tabular-nums text-emerald-700">${x.onTime}</td><td class="px-3 py-2 tabular-nums ${x.late ? 'text-amber-600 font-bold' : ''}">${x.late}</td>
+        <td class="px-3 py-2 tabular-nums">${x.lateMinutes}</td><td class="px-3 py-2 tabular-nums">${x.earlyOut}</td><td class="px-3 py-2 tabular-nums text-violet-700">${x.permitted}</td><td class="px-3 py-2 tabular-nums text-sky-700">${x.excused}</td>
+        <td class="px-3 py-2 tabular-nums ${x.absent ? 'text-rose-600 font-bold' : ''}">${x.absent}</td><td class="px-3 py-2 tabular-nums">${x.workedHours}</td>
+        <td class="px-3 py-2"><div class="flex items-center gap-2"><div class="w-14 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full ${x.disciplineRate >= 90 ? 'bg-emerald-500' : x.disciplineRate >= 75 ? 'bg-gold-500' : 'bg-rose-500'}" style="width:${x.disciplineRate}%"></div></div><span class="tabular-nums text-xs font-bold">${x.disciplineRate}%</span></div></td></tr>`).join('')}</tbody></table>`;
+  },
+
+  /** مستند رسمي موحّد للطباعة / PDF / Word */
+  docHtml() {
+    const r = this.data, t = r.totals;
+    const tbl = (headers, rows) => `<table class="data"><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(row => `<tr>${row.map(c => `<td>${Util.esc(c === '' || c == null ? '—' : c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+    const stat = [['أيام الدوام', r.workdays], ['عدد المعلمات', t.teachers], ['حضور', t.present], ['تأخر', t.late], ['غياب', t.absent], ['انصراف مبكر', t.earlyOut], ['استئذان', t.permitted], ['بعذر', t.excused]]
+      .map(([l, v]) => `<td style="border:1px solid #cbd5e1;padding:4px 8px;font-size:11px;text-align:center"><b>${l}</b><br>${v}</td>`).join('');
+    const dh = this.DETAIL_HEADERS.filter((_, i) => i !== 4), dr = r.details.map((e, i) => this.detailRow(e, i).filter((_, k) => k !== 4));
+    const sh = this.SUMMARY_HEADERS.filter((_, i) => i !== 2), sr = r.rows.map((x, i) => this.summaryRow(x, i).filter((_, k) => k !== 2).map((v, k, a) => k === a.length - 1 ? v + '%' : v));
+    const single = r.rows.length === 1;
+    return Brand.header(this.title(), [this.scopeLabel(), this.rangeLabel()]) +
+      `<table class="layout" style="width:100%;border-collapse:collapse;margin-bottom:10px"><tr>${stat}</tr></table>` +
+      (r.kind === 'all' && !single ? `<div style="font-weight:800;font-size:13px;color:#065f46;margin:8px 0 4px">أولاً: ملخص المعلمات</div>${tbl(sh, sr)}<div style="font-weight:800;font-size:13px;color:#065f46;margin:12px 0 4px">ثانياً: الحركات التفصيلية (${r.details.length})</div>` : '') +
+      (r.details.length ? tbl(dh, dr) : '<p style="text-align:center;padding:20px;font-weight:700">لا توجد حركات مطابقة</p>') +
+      (r.truncated ? '<p style="font-size:10px">* عُرض أول 6000 حركة فقط.</p>' : '') + Brand.footer();
+  },
+  exportXlsx() {
+    const r = this.data;
+    Export.xlsx(this.fileName() + '.xlsx', [
+      { name: 'الحركات', headers: this.DETAIL_HEADERS, rows: r.details.map((e, i) => this.detailRow(e, i)) },
+      { name: 'ملخص المعلمات', headers: this.SUMMARY_HEADERS, rows: r.rows.map((x, i) => this.summaryRow(x, i)) }
+    ]);
+  }
+};
+
+/* ============================ الطلبات والأعذار ============================ */
+const Requests = {
+  status: 'PENDING', data: null, busy: new Set(),
+
+  init() {
+    this.status = Store.get('rqStatus', 'PENDING');
+    $('#rq-type').onchange = () => this.load();
+    $('#rq-contract').onchange = () => this.load();
+    $('#rq-search').addEventListener('input', Util.debounce(() => this.render(), 120));
+    $('#rq-refresh').onclick = () => this.load();
+    $('#rq-export').onclick = () => this.exportCsv();
+  },
+
+  async load(silent = false) {
+    if (!Admin.token) return;
+    if (!this.data) $('#rq-list').innerHTML = '<div class="h-44 rounded-3xl shimmer"></div><div class="h-44 rounded-3xl shimmer"></div>';
+    try {
+      const res = await Api.call('getRequests', { status: this.status, type: $('#rq-type').value, filter: $('#rq-contract').value }, { admin: true });
+      this.data = res;
+      if ($('#rq-contract').value === 'ALL') App.setPending(res.counts.PENDING);
+      this.render();
+    } catch (err) {
+      if (!silent || err.code === 'AUTH_REQUIRED') Admin.handleAuthError(err);
+    }
+  },
+
+  renderChips() {
+    const c = (this.data && this.data.counts) || { PENDING: 0, APPROVED: 0, REJECTED: 0, ALL: 0 };
+    const chips = [['PENDING', '⏳ قيد الانتظار', c.PENDING, 'bg-amber-500'], ['APPROVED', '✓ معتمدة', c.APPROVED, 'bg-emerald-600'], ['REJECTED', '✕ مرفوضة', c.REJECTED, 'bg-rose-600'], ['ALL', 'الكل', c.ALL, 'bg-navy-900']];
+    $('#rq-status').innerHTML = chips.map(([k, l, n, bg]) => {
+      const active = this.status === k;
+      return `<button data-rq-status="${k}" class="press shrink-0 rounded-xl px-3.5 py-2 text-sm font-bold flex items-center gap-2 transition ${active ? bg + ' text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+        ${l}<span class="rounded-lg px-1.5 py-0.5 text-[11px] tabular-nums ${active ? 'bg-white/20' : 'bg-white text-navy-800'}">${n}</span></button>`;
+    }).join('');
+    $$('#rq-status [data-rq-status]').forEach(b => b.onclick = () => { this.status = b.dataset.rqStatus; Store.set('rqStatus', this.status); this.renderChips(); this.load(); });
+  },
+
+  visible() {
+    const q = Util.normalizeAr(Util.latin($('#rq-search').value));
+    const list = (this.data && this.data.requests) || [];
+    return list.filter(r => !q || Util.normalizeAr(r.name).includes(q) || r.id.toLowerCase().includes(q.toLowerCase()) || r.nationalId.includes(q));
+  },
+
+  card(r) {
+    const perm = r.type === REQ.PERMISSION;
+    const days = !perm && r.toDate ? Util.dayDiff(r.date, r.toDate) + 1 : 1;
+    const dateLine = perm
+      ? `<b>${Util.esc(Util.dateLabel(r.date, { weekday: 'long', day: 'numeric', month: 'long' }))}</b> • الخروج المتوقع <b class="tabular-nums">${Util.fmt12(r.exitTime)}</b>`
+      : `<b>${Util.esc(Util.dateLabel(r.date, { weekday: 'short', day: 'numeric', month: 'long' }))}</b>${days > 1 ? ` ← <b>${Util.esc(Util.dateLabel(r.toDate, { weekday: 'short', day: 'numeric', month: 'long' }))}</b>` : ''} <span class="text-slate-500">(${days} ${days === 1 ? 'يوم' : days === 2 ? 'يومان' : days <= 10 ? 'أيام' : 'يوماً'})</span>`;
+    const pending = r.status === REQ.PENDING;
+    const accent = pending ? 'ring-amber-200' : r.status === REQ.APPROVED ? 'ring-emerald-200' : 'ring-rose-200';
+    return `<div class="rq-card fade-up bg-white rounded-3xl shadow-soft ring-1 ${accent} p-4 sm:p-5 transition-all duration-300" data-rq="${Util.esc(r.id)}">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="w-11 h-11 shrink-0 rounded-2xl ${perm ? 'bg-violet-50 text-violet-700' : 'bg-sky-50 text-sky-700'} grid place-items-center text-lg font-black">${perm ? '⏏' : '✚'}</span>
+          <div class="min-w-0">
+            <div class="font-extrabold text-navy-900 truncate">${Util.esc(r.name)}</div>
+            <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">${Badge.contract(r.contractType, 'xs')}<span class="text-[11px] font-extrabold ${perm ? 'text-violet-700' : 'text-sky-700'}">${perm ? 'طلب استئذان' : Util.esc(r.excuseType || 'عذر غياب')}</span></div>
+          </div>
+        </div>
+        <div class="text-left shrink-0">${Badge.status(r.status)}<div class="mt-1 text-[10px] font-mono text-slate-400" dir="ltr">${Util.esc(r.id)}</div></div>
+      </div>
+      <div class="mt-3 rounded-2xl bg-slate-50 px-3.5 py-2.5 text-sm text-navy-900">${dateLine}</div>
+      ${r.reason ? `<div class="mt-2 text-sm text-slate-600 leading-relaxed"><span class="text-xs font-extrabold text-slate-400">${perm ? 'السبب:' : 'ملاحظات:'}</span> ${Util.esc(r.reason)}</div>` : ''}
+      <div class="mt-2 text-[11px] text-slate-400 font-semibold">قُدِّم ${Util.esc(r.createdAt)}${r.reviewedAt ? ' • رُوجع ' + Util.esc(r.reviewedAt) : ''}</div>
+      ${pending ? `
+        <input data-note="${Util.esc(r.id)}" maxlength="300" placeholder="ملاحظة للمعلمة (اختياري)" class="mt-3 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:bg-white">
+        <div class="mt-2 grid grid-cols-2 gap-2">
+          <button data-decide="approve" data-id="${Util.esc(r.id)}" class="rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 press flex items-center justify-center gap-2 disabled:opacity-60">✓ اعتماد</button>
+          <button data-decide="reject" data-id="${Util.esc(r.id)}" class="rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-extrabold py-3 press flex items-center justify-center gap-2 disabled:opacity-60">✕ رفض</button>
+        </div>` : (r.adminNote ? `<div class="mt-3 rounded-xl bg-slate-50 ring-1 ring-slate-200 px-3 py-2 text-xs"><b class="text-navy-800">ملاحظة الوكيلة:</b> ${Util.esc(r.adminNote)}</div>` : '')}
+    </div>`;
+  },
+
+  render() {
+    this.renderChips();
+    const list = this.visible();
+    $('#rq-empty').classList.toggle('hidden', list.length > 0);
+    $('#rq-list').innerHTML = list.map(r => this.card(r)).join('');
+    $$('#rq-list [data-decide]').forEach(b => b.onclick = () => this.decide(b.dataset.id, b.dataset.decide, b));
+  },
+
+  async decide(id, decision, btn) {
+    if (this.busy.has(id)) return;
+    this.busy.add(id);
+    const card = btn.closest('.rq-card');
+    const note = (card.querySelector('[data-note]') || {}).value || '';
+    card.querySelectorAll('[data-decide]').forEach(b => b.disabled = true);
+    btn.innerHTML = '<span class="spinner"></span>';
+    try {
+      const res = await Api.call('updateRequestStatus', { id, status: decision, note }, { admin: true });
+      decision === 'approve' ? Toast.success(res.message) : Toast.info(res.message);
+      App.setPending(res.pendingRequests);
+      const item = this.data.requests.find(r => r.id === id);
+      if (item) Object.assign(item, res.request);
+      const c = this.data.counts;
+      c.PENDING = Math.max(0, c.PENDING - 1);
+      decision === 'approve' ? c.APPROVED++ : c.REJECTED++;
+      if (this.status === 'PENDING') {
+        card.style.opacity = '0'; card.style.transform = 'scale(.96)';
+        setTimeout(() => { this.data.requests = this.data.requests.filter(r => r.id !== id); this.render(); }, 280);
+      } else this.render();
+      if (Admin.data) Admin.load(true);           // تحديث إحصائيات اليوم بعد اعتماد العذر
+    } catch (err) {
+      Admin.handleAuthError(err);
+      if (err.code === 'ALREADY_DECIDED') this.load(true); else this.render();
+    } finally { this.busy.delete(id); }
+  },
+
+  exportCsv() {
+    const list = this.visible();
+    if (!list.length) { Toast.warn('لا توجد طلبات للتصدير'); return; }
+    Util.csv(`الطلبات_والأعذار_${Clock.today()}.csv`,
+      ['رقم الطلب', 'وقت التقديم', 'اسم المعلمة', 'رقم الهوية', 'التصنيف', 'نوع الطلب', 'التاريخ', 'إلى تاريخ', 'وقت الخروج', 'نوع العذر', 'السبب / الملاحظات', 'الحالة', 'وقت المراجعة', 'ملاحظة الوكيلة'],
+      list.map(r => [r.id, r.createdAt, r.name, r.nationalId, r.contractType, r.type, r.date, r.toDate, r.exitTime, r.excuseType, r.reason, r.status, r.reviewedAt, r.adminNote]));
+    Toast.success('تم تصدير الطلبات بصيغة CSV');
+  }
+};
+
+/* ============================ التطبيق ============================ */
+const App = {
+  section: 'daily',
+  async init() {
+    $('#app-version').textContent = APP.VERSION;
+    const params = new URLSearchParams(location.search);
+    if (params.get('api')) Store.set('apiUrl', params.get('api').trim());
+    if (!Store.available) $('#login-storage-hint').classList.remove('hidden');
+
+    Modal.init();
+    Clock.start();
+    $$('#sections [data-section-btn]').forEach(b => b.onclick = () => this.showSection(b.dataset.sectionBtn));
+    $('#pending-banner').onclick = () => this.showSection('requests');
+    $('#setup-save').onclick = () => this.saveApiUrl($('#setup-url').value, $('#setup-save'));
+    $('#conn-pill').onclick = () => this.ping(true);
+    window.addEventListener('online', () => { Toast.success('عاد الاتصال بالإنترنت'); this.ping(); });
+    window.addEventListener('offline', () => { Conn.set('offline'); Toast.warn('انقطع الاتصال بالإنترنت'); });
+
+    Brand.init();
+    Admin.init();
+    Requests.init();
+    Staff.init();
+    Reports.init();
+    const hash = location.hash.replace('#', '');
+    this.section = this.PANELS[hash] ? hash : 'daily';
+    this.markNav();
+    if (this.updateSetupCard()) { Admin.enter(); this.ping(); }
+  },
+  markNav() { $$('#sections [data-section-btn]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.sectionBtn === this.section))); },
+  PANELS: { daily: 'admin-panel', requests: 'requests-panel', staff: 'staff-panel', reports: 'reports-panel' },
+  showSection(sec) {
+    this.section = sec;
+    this.markNav();
+    history.replaceState(null, '', location.pathname + location.search + (sec === 'daily' ? '' : '#' + sec));
+    this.applySection();
+    if (Admin.token) { if (sec === 'daily') Admin.load(!!Admin.data); else this.enterSection(false); }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+  enterSection(silent) {
+    if (this.section === 'requests') Requests.load(silent);
+    else if (this.section === 'staff') Staff.load(silent);
+    else if (this.section === 'reports') Reports.enter();
+  },
+  applySection() {
+    const authed = !!Admin.token;
+    Object.entries(this.PANELS).forEach(([sec, id]) => {
+      const show = authed && this.section === sec && (sec !== 'daily' || !!Admin.data);
+      document.getElementById(id).classList.toggle('hidden', !show);
+    });
+    $('#admin-loading').classList.toggle('hidden', !authed || this.section !== 'daily' || !!Admin.data);
+  },
+  setPending(n) {
+    n = Number(n) || 0;
+    const badge = $('#nav-pending');
+    badge.textContent = n; badge.classList.toggle('hidden', !n); badge.classList.toggle('grid', !!n);
+    $('#pending-banner').classList.toggle('hidden', !n);
+    $('#pending-text').textContent = n === 1 ? 'طلب واحد بانتظار المراجعة' : n === 2 ? 'طلبان بانتظار المراجعة' : `${n} طلبات بانتظار المراجعة`;
+    document.title = (n ? `(${n}) ` : '') + 'لوحة الوكيلة — نظام الحضور الذكي';
+  },
+  teacherLink() {
+    if (APP.TEACHER_URL) return APP.TEACHER_URL;
+    if (Api.mode === 'gas' && Api.url) return Api.url + '?page=teacher';
+    const u = new URL(location.href.split('#')[0]);
+    u.pathname = u.pathname.replace(/[^/]*$/, APP.TEACHER_PAGE);
+    u.search = '';
+    if (!APP.DEFAULT_API_URL && Api.url) u.searchParams.set('api', Api.url);
+    return u.toString();
+  },
+  updateSetupCard() {
+    const missing = Api.mode !== 'gas' && !Api.url;
+    $('#setup-card').classList.toggle('hidden', !missing);
+    $('#view-admin').classList.toggle('hidden', missing);
+    if (missing) Conn.set('unset');
+    return !missing;
+  },
+  async saveApiUrl(url, btn) {
+    url = String(url || '').trim();
+    if (!/^https:\/\/script\.google(usercontent)?\.com\/.+\/exec(\?.*)?$/.test(url)) { Toast.warn('الرابط غير صحيح — يجب أن يبدأ بـ https://script.google.com وينتهي بـ /exec'); return; }
+    await withBusy(btn, async () => {
+      const old = Store.get('apiUrl', '');
+      Store.set('apiUrl', url); Api.mode = 'fetch';
+      try {
+        const res = await Api.call('ping');
+        Clock.sync(res.serverEpoch);
+        Toast.success(`تم الربط بنجاح — ${res.message} (إصدار ${res.version})`);
+        if (this.updateSetupCard()) Admin.enter();
+      } catch (err) {
+        Store.set('apiUrl', old);
+        Toast.error('تعذر الاتصال بهذا الرابط: ' + err.message);
+      }
+    }, 'جارٍ الاختبار…');
+  },
+  /** مقارنة إصدار الخادم المنشور بالإصدار الذي تحتاجه هذه الصفحة */
+  checkServer(version) {
+    const num = v => String(v || '0').split('.').map(Number).reduce((a, x) => a * 1000 + (x || 0), 0);
+    const old = num(version) < num(APP.MIN_SERVER);
+    this.serverOld = old;
+    $$('#server-warning, #server-warning-top').forEach(box => {
+      box.classList.toggle('hidden', !old);
+      if (old) box.innerHTML = `⚠️ الخادم المنشور يعمل بالإصدار ${Util.esc(version || 'قديم')} والمطلوب ${APP.MIN_SERVER}. الأقسام الجديدة (الكادر، التقارير، النسخ الاحتياطي) لن تعمل حتى تلصقي Code.gs الجديد في Apps Script ثم: Deploy ← Manage deployments ← ✏️ ← Version: New version ← Deploy.`;
+    });
+    return !old;
+  },
+  async ping(manual) {
+    if (Api.mode !== 'gas' && !Api.url) return;
+    Conn.set('connecting');
+    try { const r = await Api.call('ping'); Clock.sync(r.serverEpoch); this.checkServer(r.version); if (manual) Toast.success(`الخادم متصل • ${Api.mode === 'jsonp' ? 'وضع JSONP' : Api.mode === 'gas' ? 'Web App' : 'وضع مباشر'}`); }
+    catch (err) { if (manual) Toast.error(err.message); }
+  },
+  print(html) {
+    $('#print-root').innerHTML = html;
+    setTimeout(() => window.print(), 150);
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => App.init());
+</script>
+</body>
+</html>
